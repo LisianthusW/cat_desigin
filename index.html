@@ -17,11 +17,12 @@
             width: 375px;
             height: 812px;
             margin: 0 auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            border-radius: 25px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         .map-container {
             flex: 1;
@@ -29,244 +30,361 @@
             overflow: hidden;
         }
         .map-bg {
-            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
-                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background: linear-gradient(45deg, #f8fafc 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f8fafc 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f8fafc 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f8fafc 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #f1f5f9;
         }
         .pulse {
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
+            50% { transform: scale(1.15); opacity: 0.8; }
         }
         .slide-in {
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         .bottom-nav {
             flex-shrink: 0;
         }
         .map-poi {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             white-space: nowrap;
             min-width: 200px;
         }
+        .status-bar {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        .pet-info-card {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .floating-button {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .floating-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .bottom-recommendation {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-button-active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        .pet-marker {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.3);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="pet-tracker-container bg-white">
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
         <!-- 状态栏 -->
-        <div class="bg-yellow-400 px-4 py-2 flex justify-between items-center text-sm flex-shrink-0">
-            <span>中国联通 HD</span>
-            <div class="flex items-center space-x-1">
-                <i class="fas fa-signal"></i>
-                <i class="fas fa-wifi"></i>
-                <i class="fas fa-bluetooth"></i>
-                <span class="bg-black text-white px-2 py-1 rounded text-xs">40</span>
-                <span>15:14</span>
+        <div class="status-bar px-4 py-2.5 flex justify-between items-center text-sm flex-shrink-0">
+            <span class="font-medium text-gray-800">中国联通 HD</span>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-signal text-gray-700"></i>
+                <i class="fas fa-wifi text-gray-700"></i>
+                <i class="fas fa-bluetooth text-gray-700"></i>
+                <div class="bg-gray-800 text-white px-2.5 py-1 rounded-lg text-xs font-medium">40%</div>
+                <span class="font-medium text-gray-800">15:14</span>
             </div>
         </div>
 
-        <!-- 宠物信息卡片 -->
-        <div class="bg-yellow-400 px-4 py-4 flex items-center justify-between flex-shrink-0">
+        <!-- 宠物信息卡片 - 缩小高度和间距 -->
+        <div class="pet-info-card px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                    <i class="fas fa-dog text-orange-500 text-xl"></i>
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-dog text-orange-500 text-lg"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-black">多大</h2>
-                    <p class="text-sm text-gray-700">
+                    <h2 class="text-lg font-bold text-gray-800 mb-0.5">多大</h2>
+                    <p class="text-xs text-gray-700 mb-0.5">
                         <i class="fas fa-tag mr-1"></i>犬牌号:P000002516
                     </p>
-                    <p class="text-sm text-gray-700">
-                        当前: 智能监测 - 运动 <i class="fas fa-chevron-right"></i>
+                    <p class="text-xs text-gray-700 flex items-center">
+                        当前: 智能监测 - 运动 
+                        <i class="fas fa-chevron-right ml-1 text-xs"></i>
                     </p>
                 </div>
             </div>
-            <div class="space-y-2">
-                <button class="bg-black text-white px-4 py-2 rounded-full text-sm flex items-center">
+            <div class="space-y-1.5">
+                <button class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-full text-xs flex items-center transition-colors duration-200">
                     犬牌+ <i class="fas fa-chevron-right ml-1"></i>
                 </button>
-                <button class="bg-black text-white px-4 py-2 rounded-full text-sm flex items-center">
+                <button class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-full text-xs flex items-center transition-colors duration-200">
                     更多操作 <i class="fas fa-chevron-right ml-1"></i>
                 </button>
             </div>
         </div>
 
         <!-- 地图主界面 -->
-        <div class="map-container map-bg bg-gray-200">
-            <!-- 左侧状态指示器 -->
-            <div class="absolute left-4 top-4 bg-white rounded-lg p-2 shadow-lg z-10">
-                <div class="text-center mb-3">
-                    <i class="fas fa-battery-three-quarters text-green-500 text-lg"></i>
-                    <p class="text-xs text-gray-600 mt-1">电量</p>
+        <div class="map-container map-bg">
+            <!-- 左侧状态指示器 - 缩小尺寸 -->
+            <div class="absolute left-3 top-3 floating-button rounded-lg p-2 z-10">
+                <div class="text-center mb-2">
+                    <i class="fas fa-battery-three-quarters text-green-500 text-sm mb-0.5"></i>
+                    <p class="text-xs text-gray-600 font-medium leading-tight">85%</p>
                 </div>
                 <div class="text-center">
-                    <i class="fas fa-signal text-blue-500 text-lg"></i>
-                    <p class="text-xs text-gray-600 mt-1">信号</p>
+                    <i class="fas fa-signal text-blue-500 text-sm mb-0.5"></i>
+                    <p class="text-xs text-gray-600 font-medium leading-tight">强</p>
                 </div>
             </div>
 
-            <!-- 右侧功能菜单 - 再次缩小 -->
-            <div class="absolute right-4 top-4 space-y-1.5 slide-in z-10">
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+            <!-- 右侧功能菜单 - 进一步缩小 -->
+            <div class="absolute right-3 top-3 space-y-1.5 slide-in z-10">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-crosshairs text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">纠偏</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">纠偏</p>
                 </button>
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-map text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">围栏</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">围栏</p>
                 </button>
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-directions text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">导航</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">导航</p>
                 </button>
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-sync text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">更新</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">更新</p>
                 </button>
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-search text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">寻犬</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">寻犬</p>
                 </button>
-                <button class="bg-white rounded-lg p-1.5 shadow-lg w-10 h-10 flex flex-col items-center justify-center">
+                <button class="floating-button rounded-lg p-1.5 w-9 h-9 flex flex-col items-center justify-center">
                     <i class="fas fa-lightbulb text-gray-600 text-xs"></i>
-                    <p class="text-xs text-gray-500 mt-0.5 leading-none" style="font-size: 10px;">炫光</p>
+                    <p class="text-xs text-gray-500 leading-none font-medium" style="font-size: 8px;">炫光</p>
                 </button>
             </div>
 
-            <!-- GPS位置标记信息 - 放在宠物标记点上方，横向显示 -->
-            <div class="absolute top-1/3 left-1/2 transform -translate-x-1/2 z-20">
-                <div class="map-poi rounded-lg p-2 shadow-lg">
+            <!-- GPS位置标记信息 - 缩小卡片内容 -->
+            <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 z-20">
+                <div class="map-poi rounded-lg p-2 shadow-xl max-w-xs">
                     <div class="flex items-start space-x-2">
-                        <i class="fas fa-map-marker-alt text-red-500 mt-0.5 text-sm"></i>
+                        <i class="fas fa-map-marker-alt text-red-500 text-sm mt-0.5"></i>
                         <div>
-                            <p class="text-sm font-medium text-gray-800">[GPS]广东省深圳市宝安区</p>
-                            <p class="text-sm text-gray-600">新安街道东联大厦</p>
-                            <p class="text-xs text-gray-500 mt-1" data-time>时间:6/12 15:14</p>
+                            <p class="text-xs font-semibold text-gray-800 mb-0.5">[GPS]广东省深圳市宝安区</p>
+                            <p class="text-xs text-gray-600 mb-0.5">新安街道东联大厦</p>
+                            <p class="text-xs text-gray-500 font-medium" data-time>时间:6/12 15:14</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 宠物位置标记 - 缩小尺寸 -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+            <!-- 宠物位置标记 - 稍微缩小 -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 mt-6">
                 <div class="relative pulse">
-                    <div class="w-12 h-14 bg-white rounded-full shadow-lg flex items-center justify-center border-3 border-yellow-400">
-                        <i class="fas fa-dog text-yellow-500 text-lg"></i>
+                    <div class="pet-marker w-12 h-14 rounded-full flex items-center justify-center">
+                        <i class="fas fa-dog text-yellow-600 text-lg"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- 地图上的其他标记点 -->
+            <!-- 地图上的其他标记点 - 缩小尺寸 -->
             <div class="absolute top-1/3 left-1/4 z-10">
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
                     <i class="fas fa-university text-white text-xs"></i>
                 </div>
-                <p class="text-xs text-gray-700 mt-1 text-center">平安银行</p>
+                <p class="text-xs text-gray-700 mt-1 text-center font-medium">平安银行</p>
             </div>
 
             <div class="absolute top-2/3 right-1/3 z-10">
-                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                     <i class="fas fa-shopping-cart text-white text-xs"></i>
                 </div>
-                <p class="text-xs text-gray-700 mt-1 text-center">尚品玉液</p>
+                <p class="text-xs text-gray-700 mt-1 text-center font-medium">尚品玉液</p>
             </div>
 
             <div class="absolute bottom-1/3 left-1/3 z-10">
-                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
                     <i class="fas fa-utensils text-white text-xs"></i>
                 </div>
-                <p class="text-xs text-gray-700 mt-1 text-center">潮汕海鲜砂锅粥</p>
+                <p class="text-xs text-gray-700 mt-1 text-center font-medium">潮汕海鲜砂锅粥</p>
             </div>
 
-            <!-- 底部推荐信息 -->
-            <div class="absolute bottom-4 left-4 right-4 z-10">
-                <div class="bg-gray-800 bg-opacity-70 text-white rounded-full px-3 py-1.5 flex items-center text-sm">
-                    <i class="fas fa-map-marker-alt mr-2 text-xs"></i>
-                    <span class="flex-1 text-xs">您附近有12只爱宠 一起去遛溜</span>
-                    <i class="fas fa-chevron-right text-xs"></i>
+            <!-- 底部推荐信息 - 缩小高度 -->
+            <div class="absolute bottom-3 left-3 right-3 z-10">
+                <div class="bottom-recommendation text-white rounded-full px-3 py-1.5 flex items-center text-xs">
+                    <i class="fas fa-map-marker-alt mr-1.5 text-yellow-400 text-xs"></i>
+                    <span class="flex-1 text-xs font-medium">您附近有12只爱宠 一起去遛溜</span>
+                    <i class="fas fa-chevron-right text-xs text-yellow-400"></i>
                 </div>
             </div>
         </div>
 
-        <!-- 底部数据统计 -->
-        <div class="bg-white px-4 py-3 border-t flex-shrink-0">
+        <!-- 底部数据统计 - 优化布局和缩小间距 -->
+        <div class="stats-card px-4 py-3 flex-shrink-0 shadow-2xl">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-running text-2xl text-gray-700"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-running text-white text-lg"></i>
+                    </div>
                     <div>
-                        <h3 class="font-semibold text-gray-800">今日户外运动</h3>
-                        <p class="text-2xl font-bold text-gray-900">38<span class="text-sm text-gray-500">/10000步</span></p>
+                        <h3 class="font-semibold text-gray-800 text-sm mb-0.5">今日户外运动</h3>
+                        <p class="text-xl font-bold gradient-text">38<span class="text-xs text-gray-500 font-medium">/10000步</span></p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2">
                     <div class="text-right">
-                        <h4 class="font-semibold text-gray-800">历史轨迹</h4>
-                        <p class="text-sm text-gray-500">看看宠物今天去了哪里</p>
+                        <h4 class="font-semibold text-gray-800 text-sm mb-0.5">历史轨迹</h4>
+                        <p class="text-xs text-gray-500">看看宠物今天去了哪里</p>
                     </div>
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-route text-white"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-route text-white text-sm"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 底部导航栏 -->
-        <div class="bottom-nav bg-white border-t px-4 py-2 flex-shrink-0">
+        <!-- 底部导航栏 - 缩小图标和间距 -->
+        <div class="bottom-nav bg-white border-t border-gray-200 px-4 py-2 flex-shrink-0">
             <div class="flex justify-around items-center">
-                <button class="flex flex-col items-center space-y-1 py-2">
-                    <i class="fas fa-home text-gray-400 text-lg"></i>
-                    <span class="text-xs text-gray-400">首页</span>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-home text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">首页</span>
                 </button>
-                <button class="flex flex-col items-center space-y-1 py-2">
-                    <i class="fas fa-store text-gray-400 text-lg"></i>
-                    <span class="text-xs text-gray-400">商城</span>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-store text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">商城</span>
                 </button>
-                <button class="flex flex-col items-center space-y-1 py-2 relative">
-                    <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center -mt-2">
-                        <i class="fas fa-location-dot text-white text-xl"></i>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 relative">
+                    <div class="nav-button-active w-12 h-12 rounded-full flex items-center justify-center -mt-1">
+                        <i class="fas fa-location-dot text-white text-lg"></i>
                     </div>
                 </button>
-                <button class="flex flex-col items-center space-y-1 py-2">
-                    <i class="fas fa-bell text-gray-400 text-lg"></i>
-                    <span class="text-xs text-gray-400">消息</span>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-bell text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">消息</span>
                 </button>
-                <button class="flex flex-col items-center space-y-1 py-2">
-                    <i class="fas fa-user text-gray-400 text-lg"></i>
-                    <span class="text-xs text-gray-400">我的</span>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-user text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">我的</span>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 添加交互动画效果
+        // 增强的交互动画效果
         document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                // 点击波纹效果
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+                
+                // 按钮缩放效果
                 this.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     this.style.transform = 'scale(1)';
                 }, 150);
             });
         });
+        
+        // 添加ripple动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
-        // 模拟GPS更新
-        setInterval(() => {
+        // 优化的GPS时间更新
+        function updateTime() {
             const timeElement = document.querySelector('[data-time]');
             if (timeElement) {
                 const now = new Date();
-                timeElement.textContent = `时间:${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                const month = now.getMonth() + 1;
+                const day = now.getDate();
+                const hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                timeElement.textContent = `时间:${month}/${day} ${hours}:${minutes}`;
             }
-        }, 60000);
+        }
+        
+        // 立即更新一次时间
+        updateTime();
+        
+        // 每分钟更新时间
+        setInterval(updateTime, 60000);
+        
+        // 模拟实时数据更新
+        setInterval(() => {
+            const batteryElements = document.querySelectorAll('.fa-battery-three-quarters');
+            batteryElements.forEach(element => {
+                element.style.color = Math.random() > 0.5 ? '#10b981' : '#22c55e';
+            });
+        }, 5000);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.9)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
     </script>
 </body>
 </html>

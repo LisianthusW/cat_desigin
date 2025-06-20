@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            flex-shrink: 0;
+        }
+        .content-section {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-y: auto;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+        .menu-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background-color: #f8fafc;
+        }
+        .pet-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .pet-item:hover {
+            background-color: #f8fafc;
+        }
+        .nav-button-active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        .slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .stat-item {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部个人信息区域 -->
+        <div class="header-section px-4 py-6 flex-shrink-0">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-white">我的</h1>
+                <button onclick="openSettings()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                    <i class="fas fa-cog text-white text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- 用户信息卡片 -->
+            <div class="card rounded-xl p-4">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-2xl"></i>
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-crown text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-lg font-bold text-gray-800">铲屎官小王</h2>
+                        <p class="text-sm text-gray-600 mb-1">VIP会员 · ID: 188****9527</p>
+                        <p class="text-xs text-gray-500">注册时间: 2023年05月</p>
+                    </div>
+                    <button onclick="editProfile()" class="text-yellow-600 hover:text-yellow-700">
+                        <i class="fas fa-edit text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="content-section">
+            <!-- 数据统计 -->
+            <div class="px-4 py-3">
+                <div class="stats-grid">
+                    <div class="stat-item rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-blue-600 mb-1">3</div>
+                        <div class="text-xs text-gray-500">我的宠物</div>
+                    </div>
+                    <div class="stat-item rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-green-600 mb-1">15</div>
+                        <div class="text-xs text-gray-500">追踪天数</div>
+                    </div>
+                    <div class="stat-item rounded-lg p-3 text-center">
+                        <div class="text-xl font-bold text-purple-600 mb-1">2.8K</div>
+                        <div class="text-xs text-gray-500">总步数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的宠物 - 整合到一个卡片 -->
+            <div class="px-4 py-3">
+                <div class="card rounded-xl overflow-hidden slide-in">
+                    <!-- 标题栏 -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800">我的宠物</h3>
+                        <button onclick="addPet()" class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 hover:bg-yellow-200 transition-colors">
+                            <i class="fas fa-plus text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 宠物列表 -->
+                    <div class="divide-y divide-gray-100">
+                        <!-- 宠物1 -->
+                        <div class="pet-item px-4 py-3" onclick="viewPetDetail('多大')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-dog text-white text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <h4 class="font-medium text-gray-800">多大</h4>
+                                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">在线</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">金毛犬 · 3岁 · 电量85%</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 宠物2 -->
+                        <div class="pet-item px-4 py-3" onclick="viewPetDetail('小花')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-cat text-white text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <h4 class="font-medium text-gray-800">小花</h4>
+                                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">在线</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">英短猫 · 2岁 · 电量62%</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 宠物3 -->
+                        <div class="pet-item px-4 py-3" onclick="viewPetDetail('球球')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-dog text-white text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <h4 class="font-medium text-gray-800">球球</h4>
+                                        <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">离线</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">柴犬 · 1岁 · 电量0%</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能菜单 -->
+            <div class="px-4 py-3 pb-20">
+                <div class="card rounded-xl overflow-hidden slide-in">
+                    <!-- 菜单项 -->
+                    <div class="divide-y divide-gray-100">
+                        <!-- 我的订单 -->
+                        <div class="menu-item px-4 py-4" onclick="openOrders()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shopping-bag text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">我的订单</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">查看购买记录</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">2</span>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 设备管理 -->
+                        <div class="menu-item px-4 py-4" onclick="openDeviceManager()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-microchip text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">设备管理</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">管理追踪设备</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 健康档案 -->
+                        <div class="menu-item px-4 py-4" onclick="openHealthRecord()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-heartbeat text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">健康档案</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">宠物健康记录</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 安全设置 -->
+                        <div class="menu-item px-4 py-4" onclick="openSecurity()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">安全设置</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">账户与隐私</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 帮助中心 -->
+                        <div class="menu-item px-4 py-4" onclick="openHelp()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-question-circle text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">帮助中心</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">常见问题解答</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 关于我们 -->
+                        <div class="menu-item px-4 py-4" onclick="openAbout()">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-info-circle text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 text-sm">关于我们</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5">版本 v2.1.0</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bg-white px-4 py-2 flex-shrink-0" style="background-color: white; opacity: 1;">
+            <div class="flex justify-around items-center">
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToHome()">
+                    <i class="fas fa-home text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">首页</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToMall()">
+                    <i class="fas fa-store text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">商城</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToTracker()">
+                    <i class="fas fa-location-dot text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">追踪</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToMessages()">
+                    <i class="fas fa-bell text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">消息</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 relative">
+                    <div class="nav-button-active w-12 h-12 rounded-full flex items-center justify-center -mt-1">
+                        <i class="fas fa-user text-white text-lg"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面功能函数
+        function openSettings() {
+            showNotification('🔧 打开设置页面');
+        }
+
+        function editProfile() {
+            showNotification('✏️ 编辑个人资料');
+        }
+
+        function addPet() {
+            showNotification('➕ 添加新宠物');
+        }
+
+        function viewPetDetail(petName) {
+            showNotification(`🐕 查看${petName}的详细信息`);
+        }
+
+        function openOrders() {
+            showNotification('📦 查看我的订单');
+        }
+
+        function openDeviceManager() {
+            showNotification('📱 打开设备管理');
+        }
+
+        function openHealthRecord() {
+            showNotification('💊 查看健康档案');
+        }
+
+        function openSecurity() {
+            showNotification('🔐 打开安全设置');
+        }
+
+        function openHelp() {
+            showNotification('❓ 打开帮助中心');
+        }
+
+        function openAbout() {
+            showNotification('ℹ️ 关于我们');
+        }
+
+        // 页面跳转函数
+        function goToHome() {
+            showNotification('🏠 返回首页');
+        }
+
+        function goToMall() {
+            showNotification('🛍️ 跳转到商城');
+        }
+
+        function goToTracker() {
+            showNotification('📍 跳转到宠物追踪');
+        }
+
+        function goToMessages() {
+            showNotification('💬 跳转到消息');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: notification-show 2.5s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2500);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

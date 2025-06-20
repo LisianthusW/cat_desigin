@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paw Track - 选择宠物类型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { overflow: hidden; }
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <!-- Mock up phone container -->
+    <div class="relative">
+        <!-- Phone frame -->
+        <div class="w-96 h-[820px] bg-black rounded-[3rem] p-2 shadow-2xl">
+            <!-- Screen -->
+            <div class="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+                <!-- Status bar -->
+                <div class="absolute top-0 left-0 right-0 h-12 bg-white flex justify-between items-center px-6 text-gray-900 text-sm font-medium z-20">
+                    <span>9:41</span>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-signal text-xs"></i>
+                        <i class="fas fa-wifi text-xs"></i>
+                        <i class="fas fa-battery-three-quarters text-xs"></i>
+                    </div>
+                </div>
+                
+                <!-- Header -->
+                <div class="pt-12 px-6 pb-4 bg-white">
+                    <div class="flex items-center justify-between">
+                        <button class="w-8 h-8 flex items-center justify-center">
+                            <i class="fas fa-chevron-left text-gray-600 text-lg"></i>
+                        </button>
+                        <h1 class="text-lg font-semibold text-gray-900">添加宠物</h1>
+                        <div class="w-8 h-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Main content -->
+                <div class="bg-white h-full px-6 pt-8">
+                    <!-- Title section -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-2xl font-light text-gray-800 mb-2">选择您的宠物</h2>
+                        <div class="w-12 h-0.5 bg-gray-300 mx-auto"></div>
+                    </div>
+                    
+                    <!-- Pet selection cards -->
+                    <div class="space-y-6">
+                        <!-- Dog option -->
+                        <div class="group cursor-pointer">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                <div class="flex items-center space-x-6">
+                                    <!-- Icon container -->
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                                        <i class="fas fa-dog text-white text-2xl"></i>
+                                    </div>
+                                    
+                                    <!-- Text content -->
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-medium text-gray-800 mb-1">汪星人</h3>
+                                        <p class="text-gray-500 text-sm">忠诚的犬类伙伴</p>
+                                    </div>
+                                    
+                                    <!-- Arrow indicator -->
+                                    <div class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                                        <i class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-gray-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cat option -->
+                        <div class="group cursor-pointer">
+                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                <div class="flex items-center space-x-6">
+                                    <!-- Icon container -->
+                                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                                        <i class="fas fa-cat text-white text-2xl"></i>
+                                    </div>
+                                    
+                                    <!-- Text content -->
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-medium text-gray-800 mb-1">喵星人</h3>
+                                        <p class="text-gray-500 text-sm">优雅的猫类朋友</p>
+                                    </div>
+                                    
+                                    <!-- Arrow indicator -->
+                                    <div class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                                        <i class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-gray-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Other pets option -->
+                        <div class="group cursor-pointer">
+                            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                <div class="flex items-center space-x-6">
+                                    <!-- Icon container -->
+                                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                                        <i class="fas fa-paw text-white text-2xl"></i>
+                                    </div>
+                                    
+                                    <!-- Text content -->
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-medium text-gray-800 mb-1">其他宠物</h3>
+                                        <p class="text-gray-500 text-sm">鸟类、兔子等小动物</p>
+                                    </div>
+                                    
+                                    <!-- Arrow indicator -->
+                                    <div class="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                                        <i class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-gray-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom hint -->
+                    <div class="mt-16 text-center">
+                        <p class="text-gray-400 text-sm">点击选择您的宠物类型</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

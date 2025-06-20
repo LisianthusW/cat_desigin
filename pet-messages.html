@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备消息 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            flex-shrink: 0;
+        }
+        .content-section {
+            flex: 1;
+            background: #f8f9fa;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content-section::-webkit-scrollbar {
+            display: none;
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .message-item {
+            background: #ffffff;
+            border: 1px solid #e3e6ea;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .message-item:hover {
+            background: #f7f8fa;
+            border-color: #d1d5db;
+        }
+        .message-item.unread {
+            border-left: 3px solid #1890ff;
+            background: #f6f8ff;
+        }
+        .message-item.unread:hover {
+            background: #eff4ff;
+        }
+        .message-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #1890ff;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .message-time {
+            color: #8c9299;
+            font-size: 12px;
+        }
+        .message-content {
+            color: #36383b;
+            line-height: 1.4;
+        }
+        .message-title {
+            color: #1d2129;
+            font-weight: 500;
+        }
+        .category-tab {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        .category-tab.active {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1d2129;
+            border-color: rgba(255, 255, 255, 0.95);
+        }
+        .nav-button-active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        .device-status {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .status-online {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        .status-warning {
+            background: #fff2e6;
+            color: #fa8c16;
+        }
+        .status-error {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        .status-success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .status-offline {
+            background: #f5f5f5;
+            color: #8c8c8c;
+        }
+        /* 设备切换相关样式 */
+        .device-selector {
+            background: #ffffff;
+            border: 1px solid #e3e6ea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .device-selector:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+        }
+        .device-dropdown {
+            background: #ffffff;
+            border: 1px solid #e3e6ea;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        .device-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .device-option:hover {
+            background: #f7f8fa;
+        }
+        .device-option:last-child {
+            border-bottom: none;
+        }
+        .device-option.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部搜索栏 -->
+        <div class="header-section px-4 py-4 flex-shrink-0">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="flex-1">
+                    <div class="search-bar rounded-full px-4 py-3 flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-3"></i>
+                        <input type="text" placeholder="搜索设备消息..." class="flex-1 bg-transparent text-gray-700 placeholder-gray-400 outline-none text-sm" id="searchInput">
+                    </div>
+                </div>
+                <button onclick="markAllRead()" class="relative w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                    <i class="fas fa-check text-white text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- 消息分类导航 -->
+            <div class="flex space-x-2 overflow-x-auto pb-2" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <button onclick="filterMessages('all')" class="category-tab px-3 py-1.5 rounded-full text-sm whitespace-nowrap active">
+                    全部 <span class="ml-1" id="allCount">6</span>
+                </button>
+                <button onclick="filterMessages('location')" class="category-tab px-3 py-1.5 rounded-full text-sm whitespace-nowrap">
+                    位置 <span class="ml-1" id="locationCount">2</span>
+                </button>
+                <button onclick="filterMessages('device')" class="category-tab px-3 py-1.5 rounded-full text-sm whitespace-nowrap">
+                    设备 <span class="ml-1" id="deviceCount">2</span>
+                </button>
+                <button onclick="filterMessages('alert')" class="category-tab px-3 py-1.5 rounded-full text-sm whitespace-nowrap">
+                    告警 <span class="ml-1" id="alertCount">2</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="content-section">
+            <!-- 设备选择器 -->
+            <div class="px-4 py-3 bg-white border-b border-gray-100 relative">
+                <div class="device-selector p-3" onclick="toggleDeviceDropdown()">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center" id="currentDeviceIcon">
+                                <i class="fas fa-microchip text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900" id="currentDeviceName">PetTracker Pro</p>
+                                <p class="text-xs text-gray-500" id="currentDeviceId">设备ID: PT-001 · 多大</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="text-right">
+                                <div class="device-status" id="currentDeviceStatus">在线</div>
+                                <p class="text-xs text-gray-400 mt-1" id="currentDeviceBattery">电量 85%</p>
+                            </div>
+                            <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform duration-200" id="dropdownIcon"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 设备下拉列表 -->
+                <div class="device-dropdown absolute left-4 right-4 top-20 hidden" id="deviceDropdown">
+                    <!-- 设备选项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="divide-y divide-gray-100" id="messageList">
+                <!-- 消息将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bg-white border-t border-gray-200 px-4 py-2 flex-shrink-0">
+            <div class="flex justify-around items-center">
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToHome()">
+                    <i class="fas fa-home text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">首页</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToMall()">
+                    <i class="fas fa-store text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">商城</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToTracker()">
+                    <i class="fas fa-location-dot text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">追踪</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 relative">
+                    <div class="nav-button-active w-12 h-12 rounded-full flex items-center justify-center -mt-1">
+                        <i class="fas fa-bell text-white text-lg"></i>
+                    </div>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-user text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">我的</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 设备数据
+        const devices = [
+            {
+                id: 'PT-001',
+                name: 'PetTracker Pro',
+                petName: '多大',
+                icon: 'fa-microchip',
+                iconColor: 'text-blue-600',
+                iconBg: 'bg-blue-100',
+                status: 'online',
+                battery: 85,
+                lastUpdate: '2分钟前'
+            },
+            {
+                id: 'PT-002', 
+                name: 'SmartCollar X1',
+                petName: '小花',
+                icon: 'fa-microchip',
+                iconColor: 'text-pink-600',
+                iconBg: 'bg-pink-100',
+                status: 'online',
+                battery: 62,
+                lastUpdate: '5分钟前'
+            },
+            {
+                id: 'PT-003',
+                name: 'PetGPS Mini',
+                petName: '球球',
+                icon: 'fa-microchip',
+                iconColor: 'text-green-600', 
+                iconBg: 'bg-green-100',
+                status: 'offline',
+                battery: 0,
+                lastUpdate: '2小时前'
+            }
+        ];
+
+        // 各设备的消息数据
+        const deviceMessages = {
+            'PT-001': [
+                {
+                    id: 1,
+                    type: 'device',
+                    title: '电量低提醒',
+                    content: '设备电量剩余 15%，请及时充电',
+                    time: '2分钟前',
+                    isRead: false,
+                    status: 'warning',
+                    deviceId: 'PT-001'
+                },
+                {
+                    id: 2,
+                    type: 'location',
+                    title: '位置更新',
+                    content: '多大已离开家，当前位置：宝安区新安街道',
+                    time: '15分钟前',
+                    isRead: false,
+                    status: 'success',
+                    deviceId: 'PT-001'
+                },
+                {
+                    id: 3,
+                    type: 'alert',
+                    title: '安全区域告警',
+                    content: '多大已离开预设安全区域，请注意宠物安全',
+                    time: '32分钟前',
+                    isRead: true,
+                    status: 'error',
+                    deviceId: 'PT-001'
+                }
+            ],
+            'PT-002': [
+                {
+                    id: 4,
+                    type: 'location',
+                    title: '回到家中',
+                    content: '小花已返回家中，当前位置安全',
+                    time: '5分钟前',
+                    isRead: false,
+                    status: 'success',
+                    deviceId: 'PT-002'
+                },
+                {
+                    id: 5,
+                    type: 'device',
+                    title: '设备重连成功',
+                    content: '设备已重新连接到网络，定位服务正常',
+                    time: '20分钟前',
+                    isRead: true,
+                    status: 'success',
+                    deviceId: 'PT-002'
+                }
+            ],
+            'PT-003': [
+                {
+                    id: 6,
+                    type: 'device',
+                    title: '设备离线',
+                    content: '设备失去网络连接，无法获取位置信息',
+                    time: '2小时前',
+                    isRead: false,
+                    status: 'error',
+                    deviceId: 'PT-003'
+                }
+            ]
+        };
+
+        let currentDeviceId = 'PT-001';
+        let currentFilter = 'all';
+        let allMessages = [];
+
+        // 初始化页面
+        function initPage() {
+            updateCurrentDevice();
+            loadMessagesForDevice(currentDeviceId);
+            setupSearch();
+        }
+
+        // 更新当前设备信息
+        function updateCurrentDevice() {
+            const device = devices.find(d => d.id === currentDeviceId);
+            if (!device) return;
+
+            document.getElementById('currentDeviceName').textContent = device.name;
+            document.getElementById('currentDeviceId').textContent = `设备ID: ${device.id} · ${device.petName}`;
+            document.getElementById('currentDeviceBattery').textContent = `电量 ${device.battery}%`;
+            
+            const statusElement = document.getElementById('currentDeviceStatus');
+            statusElement.textContent = getStatusText(device.status);
+            statusElement.className = `device-status status-${device.status}`;
+            
+            const iconElement = document.getElementById('currentDeviceIcon');
+            iconElement.className = `w-10 h-10 ${device.iconBg} rounded-lg flex items-center justify-center`;
+            iconElement.innerHTML = `<i class="fas ${device.icon} ${device.iconColor}"></i>`;
+        }
+
+        // 加载指定设备的消息
+        function loadMessagesForDevice(deviceId) {
+            allMessages = deviceMessages[deviceId] || [];
+            displayMessages(allMessages);
+            updateCounts();
+        }
+
+        // 切换设备下拉列表
+        function toggleDeviceDropdown() {
+            const dropdown = document.getElementById('deviceDropdown');
+            const icon = document.getElementById('dropdownIcon');
+            
+            if (dropdown.classList.contains('hidden')) {
+                // 显示下拉列表
+                renderDeviceOptions();
+                dropdown.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                // 隐藏下拉列表
+                dropdown.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // 渲染设备选项
+        function renderDeviceOptions() {
+            const dropdown = document.getElementById('deviceDropdown');
+            dropdown.innerHTML = '';
+
+            devices.forEach(device => {
+                const option = document.createElement('div');
+                option.className = `device-option ${device.id === currentDeviceId ? 'active' : ''}`;
+                option.onclick = () => switchDevice(device.id);
+                
+                const unreadCount = deviceMessages[device.id] ? 
+                    deviceMessages[device.id].filter(m => !m.isRead).length : 0;
+                
+                option.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 ${device.iconBg} rounded-lg flex items-center justify-center">
+                                <i class="fas ${device.icon} ${device.iconColor} text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${device.petName}</p>
+                                <p class="text-xs text-gray-500">${device.name} · ${device.id}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${unreadCount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">${unreadCount}</span>` : ''}
+                            <div class="device-status status-${device.status}">${getStatusText(device.status)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                dropdown.appendChild(option);
+            });
+        }
+
+        // 切换设备
+        function switchDevice(deviceId) {
+            if (deviceId === currentDeviceId) {
+                toggleDeviceDropdown();
+                return;
+            }
+            
+            currentDeviceId = deviceId;
+            currentFilter = 'all';
+            
+            // 重置分类按钮状态
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.category-tab').classList.add('active');
+            
+            updateCurrentDevice();
+            loadMessagesForDevice(deviceId);
+            toggleDeviceDropdown();
+            
+            const device = devices.find(d => d.id === deviceId);
+            showNotification(`切换到 ${device.petName} 的设备`);
+        }
+
+        // 显示消息列表
+        function displayMessages(messagesToShow) {
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            
+            if (messagesToShow.length === 0) {
+                messageList.innerHTML = `
+                    <div class="text-center py-16">
+                        <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-sm">暂无设备消息</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            messagesToShow.forEach(message => {
+                const messageItem = createMessageItem(message);
+                messageList.appendChild(messageItem);
+            });
+        }
+
+        // 创建消息项
+        function createMessageItem(message) {
+            const div = document.createElement('div');
+            div.className = `message-item px-4 py-3 ${message.isRead ? '' : 'unread'}`;
+            div.onclick = () => openMessage(message);
+            
+            div.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    ${!message.isRead ? '<div class="message-dot mt-2"></div>' : '<div class="w-2 mt-2"></div>'}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="message-title text-sm">${message.title}</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="device-status status-${message.status}">${getStatusText(message.status)}</span>
+                                <span class="message-time">${message.time}</span>
+                            </div>
+                        </div>
+                        <p class="message-content text-sm">${message.content}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <p class="text-xs text-gray-400">设备: ${message.deviceId}</p>
+                            <div class="flex items-center space-x-3">
+                                ${!message.isRead ? `<button onclick="markAsRead(event, ${message.id})" class="text-xs text-blue-600 hover:text-blue-700">标记已读</button>` : ''}
+                                <button onclick="deleteMessage(event, ${message.id})" class="text-xs text-gray-400 hover:text-red-500">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'online': '在线',
+                'offline': '离线',
+                'warning': '警告',
+                'error': '异常',
+                'success': '正常'
+            };
+            return statusMap[status] || '未知';
+        }
+
+        // 筛选消息
+        function filterMessages(type) {
+            currentFilter = type;
+            
+            // 更新分类按钮状态
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 筛选并显示消息
+            const filteredMessages = type === 'all' 
+                ? allMessages 
+                : allMessages.filter(message => message.type === type);
+            
+            displayMessages(filteredMessages);
+        }
+
+        // 更新计数
+        function updateCounts() {
+            document.getElementById('allCount').textContent = allMessages.length;
+            document.getElementById('locationCount').textContent = allMessages.filter(m => m.type === 'location').length;
+            document.getElementById('deviceCount').textContent = allMessages.filter(m => m.type === 'device').length;
+            document.getElementById('alertCount').textContent = allMessages.filter(m => m.type === 'alert').length;
+        }
+
+        // 打开消息
+        function openMessage(message) {
+            if (!message.isRead) {
+                message.isRead = true;
+                updateCounts();
+                displayMessages(currentFilter === 'all' ? allMessages : allMessages.filter(m => m.type === currentFilter));
+            }
+        }
+
+        // 标记已读
+        function markAsRead(event, messageId) {
+            event.stopPropagation();
+            
+            const message = allMessages.find(m => m.id === messageId);
+            if (message && !message.isRead) {
+                message.isRead = true;
+                updateCounts();
+                displayMessages(currentFilter === 'all' ? allMessages : allMessages.filter(m => m.type === currentFilter));
+                showNotification('已标记为已读');
+            }
+        }
+
+        // 删除消息
+        function deleteMessage(event, messageId) {
+            event.stopPropagation();
+            
+            const messageIndex = allMessages.findIndex(m => m.id === messageId);
+            if (messageIndex !== -1) {
+                allMessages.splice(messageIndex, 1);
+                // 同步删除原始数据
+                const deviceMessagesArray = deviceMessages[currentDeviceId];
+                const originalIndex = deviceMessagesArray.findIndex(m => m.id === messageId);
+                if (originalIndex !== -1) {
+                    deviceMessagesArray.splice(originalIndex, 1);
+                }
+                
+                updateCounts();
+                displayMessages(currentFilter === 'all' ? allMessages : allMessages.filter(m => m.type === currentFilter));
+                showNotification('消息已删除');
+            }
+        }
+
+        // 全部标记已读
+        function markAllRead() {
+            const unreadMessages = allMessages.filter(m => !m.isRead);
+            if (unreadMessages.length > 0) {
+                unreadMessages.forEach(message => message.isRead = true);
+                updateCounts();
+                displayMessages(currentFilter === 'all' ? allMessages : allMessages.filter(m => m.type === currentFilter));
+                showNotification(`已将 ${unreadMessages.length} 条消息标记为已读`);
+            } else {
+                showNotification('暂无未读消息');
+            }
+        }
+
+        // 搜索功能
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query) {
+                    const filtered = allMessages.filter(message => 
+                        message.title.toLowerCase().includes(query) || 
+                        message.content.toLowerCase().includes(query)
+                    );
+                    displayMessages(filtered);
+                } else {
+                    const filtered = currentFilter === 'all' ? allMessages : allMessages.filter(m => m.type === currentFilter);
+                    displayMessages(filtered);
+                }
+            });
+        }
+
+        // 点击外部关闭下拉列表
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('deviceDropdown');
+            const selector = e.target.closest('.device-selector');
+            
+            if (!selector && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+                document.getElementById('dropdownIcon').style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // 页面跳转函数
+        function goToHome() {
+            showNotification('返回首页');
+        }
+
+        function goToMall() {
+            showNotification('跳转到商城');
+        }
+
+        function goToTracker() {
+            showNotification('跳转到宠物追踪');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载
+        window.addEventListener('load', () => {
+            initPage();
+        });
+    </script>
+</body>
+</html> 

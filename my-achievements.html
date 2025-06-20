@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的成就 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            flex-shrink: 0;
+        }
+        .content-section {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-y: auto;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+        .achievement-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .achievement-item:hover {
+            background-color: #f8fafc;
+        }
+        .achievement-unlocked {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+        }
+        .achievement-locked {
+            opacity: 0.6;
+        }
+        .nav-button-active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        .slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .category-tab {
+            transition: all 0.2s ease;
+        }
+        .category-tab.active {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .achievement-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .achievement-glow {
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
+            to { box-shadow: 0 0 30px rgba(251, 191, 36, 0.9); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部标题区域 -->
+        <div class="header-section px-4 py-6 flex-shrink-0">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="goBack()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                        <i class="fas fa-arrow-left text-white text-lg"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-white">我的成就</h1>
+                </div>
+                <button onclick="shareAchievements()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                    <i class="fas fa-share text-white text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- 成就总览卡片 -->
+            <div class="card rounded-xl p-4">
+                <div class="text-center">
+                    <div class="flex justify-center mb-3">
+                        <div class="achievement-badge bg-gradient-to-br from-yellow-400 to-orange-500 achievement-glow">
+                            <i class="fas fa-trophy text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-lg font-bold text-gray-800 mb-1">铲屎官达人</h2>
+                    <p class="text-sm text-gray-600 mb-3">已解锁 12/20 个成就</p>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500">距离下一等级还需 8 个成就</p>
+                </div>
+            </div>
+            
+            <!-- 分类导航 -->
+            <div class="flex space-x-2 mt-4 overflow-x-auto pb-2">
+                <button onclick="filterAchievements('all')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap active">
+                    全部
+                </button>
+                <button onclick="filterAchievements('care')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    护理
+                </button>
+                <button onclick="filterAchievements('track')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    追踪
+                </button>
+                <button onclick="filterAchievements('social')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    社交
+                </button>
+                <button onclick="filterAchievements('special')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    特殊
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="content-section">
+            <!-- 成就列表 -->
+            <div class="px-4 py-3 pb-20">
+                <div class="card rounded-xl overflow-hidden slide-in">
+                    <div class="divide-y divide-gray-100" id="achievementList">
+                        <!-- 成就将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bg-white px-4 py-2 flex-shrink-0" style="background-color: white; opacity: 1;">
+            <div class="flex justify-around items-center">
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToHome()">
+                    <i class="fas fa-home text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">首页</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToMall()">
+                    <i class="fas fa-store text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">商城</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToTracker()">
+                    <i class="fas fa-location-dot text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">追踪</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToMessages()">
+                    <i class="fas fa-bell text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">消息</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 relative">
+                    <div class="nav-button-active w-12 h-12 rounded-full flex items-center justify-center -mt-1">
+                        <i class="fas fa-user text-white text-lg"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 成就数据
+        const achievements = [
+            {
+                id: 1,
+                category: 'care',
+                name: '新手铲屎官',
+                description: '注册账号并添加第一只宠物',
+                icon: 'fa-paw',
+                iconColor: 'from-blue-400 to-blue-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '经验 +10',
+                unlockedDate: '2023-05-15'
+            },
+            {
+                id: 2,
+                category: 'track',
+                name: '追踪新手',
+                description: '累计追踪宠物 7 天',
+                icon: 'fa-calendar-check',
+                iconColor: 'from-green-400 to-green-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '经验 +20',
+                unlockedDate: '2023-05-22'
+            },
+            {
+                id: 3,
+                category: 'track',
+                name: '运动达人',
+                description: '宠物单日步数达到 5000 步',
+                icon: 'fa-running',
+                iconColor: 'from-orange-400 to-orange-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '徽章 +1',
+                unlockedDate: '2023-05-28'
+            },
+            {
+                id: 4,
+                category: 'care',
+                name: '多宠之家',
+                description: '添加 3 只及以上宠物',
+                icon: 'fa-home',
+                iconColor: 'from-purple-400 to-purple-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '称号：多宠之家',
+                unlockedDate: '2023-06-01'
+            },
+            {
+                id: 5,
+                category: 'track',
+                name: '马拉松挑战',
+                description: '宠物累计步数达到 50000 步',
+                icon: 'fa-medal',
+                iconColor: 'from-yellow-400 to-yellow-500',
+                unlocked: false,
+                progress: 28000,
+                maxProgress: 50000,
+                reward: '专属徽章'
+            },
+            {
+                id: 6,
+                category: 'social',
+                name: '分享专家',
+                description: '分享宠物动态 10 次',
+                icon: 'fa-share-alt',
+                iconColor: 'from-pink-400 to-pink-500',
+                unlocked: false,
+                progress: 3,
+                maxProgress: 10,
+                reward: '分享达人称号'
+            },
+            {
+                id: 7,
+                category: 'care',
+                name: '健康守护者',
+                description: '完成宠物健康档案记录',
+                icon: 'fa-heartbeat',
+                iconColor: 'from-red-400 to-red-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '健康徽章',
+                unlockedDate: '2023-06-05'
+            },
+            {
+                id: 8,
+                category: 'special',
+                name: '早起的鸟儿',
+                description: '连续 7 天在早上 7 点前查看宠物状态',
+                icon: 'fa-sun',
+                iconColor: 'from-yellow-300 to-orange-400',
+                unlocked: false,
+                progress: 2,
+                maxProgress: 7,
+                reward: '早起徽章'
+            },
+            {
+                id: 9,
+                category: 'track',
+                name: '设备专家',
+                description: '使用追踪设备 30 天',
+                icon: 'fa-microchip',
+                iconColor: 'from-indigo-400 to-indigo-500',
+                unlocked: false,
+                progress: 15,
+                maxProgress: 30,
+                reward: '设备达人称号'
+            },
+            {
+                id: 10,
+                category: 'social',
+                name: '购物达人',
+                description: '在商城购买商品 5 次',
+                icon: 'fa-shopping-bag',
+                iconColor: 'from-emerald-400 to-emerald-500',
+                unlocked: true,
+                progress: 100,
+                maxProgress: 100,
+                reward: '购物徽章',
+                unlockedDate: '2023-06-10'
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // 初始化页面
+        function initPage() {
+            displayAchievements(achievements);
+        }
+
+        // 显示成就列表
+        function displayAchievements(achievementsToShow) {
+            const achievementList = document.getElementById('achievementList');
+            achievementList.innerHTML = '';
+            
+            if (achievementsToShow.length === 0) {
+                achievementList.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-trophy text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">暂无相关成就</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            achievementsToShow.forEach(achievement => {
+                const achievementItem = createAchievementItem(achievement);
+                achievementList.appendChild(achievementItem);
+            });
+        }
+
+        // 创建成就项
+        function createAchievementItem(achievement) {
+            const div = document.createElement('div');
+            div.className = `achievement-item px-4 py-4 ${achievement.unlocked ? 'achievement-unlocked' : 'achievement-locked'}`;
+            div.onclick = () => viewAchievementDetail(achievement);
+            
+            const progressPercent = Math.round((achievement.progress / achievement.maxProgress) * 100);
+            
+            div.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="achievement-badge bg-gradient-to-br ${achievement.iconColor} ${achievement.unlocked ? 'achievement-glow' : ''}">
+                        <i class="fas ${achievement.icon} text-white text-lg"></i>
+                        ${achievement.unlocked ? '<div class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"><i class="fas fa-check text-white text-xs"></i></div>' : ''}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <h4 class="font-medium text-gray-800">${achievement.name}</h4>
+                            ${achievement.unlocked ? '<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">已获得</span>' : ''}
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">${achievement.description}</p>
+                        ${!achievement.unlocked ? `
+                            <div class="mb-2">
+                                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                    <span>进度</span>
+                                    <span>${achievement.progress}/${achievement.maxProgress}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-gray-500">奖励: ${achievement.reward}</p>
+                            ${achievement.unlocked ? `<span class="text-xs text-gray-400">${achievement.unlockedDate}</span>` : ''}
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 筛选成就
+        function filterAchievements(category) {
+            currentFilter = category;
+            
+            // 更新分类按钮状态
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 筛选并显示成就
+            const filteredAchievements = category === 'all' 
+                ? achievements 
+                : achievements.filter(achievement => achievement.category === category);
+            
+            displayAchievements(filteredAchievements);
+            showNotification(`🏆 显示${getCategoryName(category)}成就`);
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categoryNames = {
+                'all': '全部',
+                'care': '护理',
+                'track': '追踪',
+                'social': '社交',
+                'special': '特殊'
+            };
+            return categoryNames[category] || category;
+        }
+
+        // 查看成就详情
+        function viewAchievementDetail(achievement) {
+            showNotification(`🔍 查看成就：${achievement.name}`);
+        }
+
+        // 分享成就
+        function shareAchievements() {
+            showNotification('📤 分享我的成就');
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('🔙 返回我的页面');
+        }
+
+        // 页面跳转函数
+        function goToHome() {
+            showNotification('🏠 返回首页');
+        }
+
+        function goToMall() {
+            showNotification('🛍️ 跳转到商城');
+        }
+
+        function goToTracker() {
+            showNotification('📍 跳转到宠物追踪');
+        }
+
+        function goToMessages() {
+            showNotification('💬 跳转到消息');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: notification-show 2.5s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2500);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50()) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+            
+            // 初始化页面
+            setTimeout(initPage, 500);
+        });
+    </script>
+</body>
+</html> 

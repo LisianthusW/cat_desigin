@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物交友 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=6c1576bd552c7e09cbacc760e14f6618&plugin=AMap.Scale"></script>
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            z-index: 100;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .top-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #f1f3f4;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+        
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            flex: 1;
+            text-align: center;
+            margin: 0 20px;
+        }
+        
+        .back-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .view-toggle {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 2px;
+            gap: 2px;
+        }
+        
+        .toggle-btn {
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active {
+            background: #ffffff;
+            color: #ff6b35;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-section {
+            background: #ffffff;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .filter-tab {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .filter-tab.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-color: #ff6b35;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .filter-tab:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 高德地图容器 */
+        #amap-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        /* 地图样式覆盖 */
+        .amap-logo, .amap-copyright {
+            opacity: 0.3 !important;
+        }
+        
+        .content-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .pet-count {
+            font-size: 13px;
+            color: #6c757d;
+            background: #f8f9fa;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        
+        .pet-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .pet-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .pet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pet-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            box-shadow: 0 3px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .pet-avatar.female {
+            background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+            box-shadow: 0 3px 12px rgba(233, 30, 99, 0.3);
+        }
+        
+        .pet-avatar.cat {
+            background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);
+            box-shadow: 0 3px 12px rgba(156, 39, 176, 0.3);
+        }
+        
+        .pet-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        
+        .pet-info {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .pet-distance {
+            font-size: 10px;
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .online-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .pet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .pet-list-item {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pet-list-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .pet-list-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .pet-list-info {
+            flex: 1;
+        }
+        
+        .pet-list-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .pet-list-details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        
+        .pet-list-distance {
+            font-size: 11px;
+            color: #ff6b35;
+            font-weight: 500;
+        }
+        
+        .pet-info-popup {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 20;
+            min-width: 200px;
+            display: none;
+        }
+        
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .popup-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .popup-info {
+            flex: 1;
+        }
+        
+        .popup-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .popup-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .popup-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .popup-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .popup-btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+        
+        .popup-btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .popup-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            z-index: 50;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+        }
+        
+        .nav-items {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .nav-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .nav-item:not(.active) {
+            color: #999;
+            background: transparent;
+        }
+        
+        .nav-item:not(.active):hover {
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .my-pet-marker {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border: 3px solid white;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>9:41</span>
+            </div>
+            <div class="status-right">
+                <div class="flex items-center gap-1">
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+                <i class="fas fa-wifi text-sm"></i>
+                <div class="w-6 h-3 border border-black rounded-sm relative">
+                    <div class="absolute right-0 top-0 w-4 h-full bg-black rounded-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 顶部导航栏 -->
+        <div class="top-nav">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </button>
+            <h1 class="nav-title">宠物交友</h1>
+            <div class="view-toggle">
+                <button class="toggle-btn" id="listToggle" onclick="toggleView('list')">列表</button>
+                <button class="toggle-btn active" id="mapToggle" onclick="toggleView('map')">地图</button>
+            </div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterPets('all')">全部</button>
+                <button class="filter-tab" onclick="filterPets('dog')">狗狗</button>
+                <button class="filter-tab" onclick="filterPets('cat')">猫咪</button>
+                <button class="filter-tab" onclick="filterPets('nearby')">附近</button>
+                <button class="filter-tab" onclick="filterPets('online')">在线</button>
+            </div>
+        </div>
+
+        <!-- 地图视图 -->
+        <div class="map-container" id="mapView">
+            <div id="amap-container"></div>
+            
+            <!-- 宠物信息弹窗 -->
+            <div class="pet-info-popup" id="petInfoPopup">
+                <div class="popup-header">
+                    <div class="popup-avatar" id="popupAvatar">
+                        <i class="fas fa-dog text-white"></i>
+                    </div>
+                    <div class="popup-info">
+                        <div class="popup-name" id="popupName">小白</div>
+                        <div class="popup-details" id="popupDetails">金毛 · 2岁 · ♂</div>
+                    </div>
+                </div>
+                <div class="popup-actions">
+                    <button class="popup-btn popup-btn-secondary" onclick="closePopup()">关闭</button>
+                    <button class="popup-btn popup-btn-primary" onclick="connectPet()">交友</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 列表视图 -->
+        <div class="content-section hidden" id="listView">
+            <!-- 推荐宠物区域 -->
+            <div class="section-header">
+                <h2 class="section-title">推荐宠物</h2>
+                <span class="pet-count">6只</span>
+            </div>
+            
+            <div class="pet-grid">
+                <div class="pet-card" onclick="viewPetProfile('buddy')">
+                    <div class="online-indicator"></div>
+                    <div class="pet-avatar">
+                        <i class="fas fa-dog text-white text-lg"></i>
+                    </div>
+                    <div class="pet-name">小白</div>
+                    <div class="pet-info">金毛 · 2岁 · ♂</div>
+                    <div class="pet-distance">150m</div>
+                </div>
+                
+                <div class="pet-card" onclick="viewPetProfile('luna')">
+                    <div class="online-indicator"></div>
+                    <div class="pet-avatar female">
+                        <i class="fas fa-dog text-white text-lg"></i>
+                    </div>
+                    <div class="pet-name">Luna</div>
+                    <div class="pet-info">拉布拉多 · 1岁 · ♀</div>
+                    <div class="pet-distance">280m</div>
+                </div>
+                
+                <div class="pet-card" onclick="viewPetProfile('mimi')">
+                    <div class="pet-avatar cat">
+                        <i class="fas fa-cat text-white text-lg"></i>
+                    </div>
+                    <div class="pet-name">咪咪</div>
+                    <div class="pet-info">英短 · 3岁 · ♀</div>
+                    <div class="pet-distance">350m</div>
+                </div>
+                
+                <div class="pet-card" onclick="viewPetProfile('max')">
+                    <div class="online-indicator"></div>
+                    <div class="pet-avatar">
+                        <i class="fas fa-dog text-white text-lg"></i>
+                    </div>
+                    <div class="pet-name">Max</div>
+                    <div class="pet-info">哈士奇 · 4岁 · ♂</div>
+                    <div class="pet-distance">420m</div>
+                </div>
+            </div>
+
+            <!-- 附近宠物列表 -->
+            <div class="section-header">
+                <h2 class="section-title">附近宠物</h2>
+                <span class="pet-count">12只</span>
+            </div>
+            
+            <div class="pet-list">
+                <div class="pet-list-item" onclick="viewPetProfile('coco')">
+                    <div class="pet-list-avatar female">
+                        <i class="fas fa-dog text-white"></i>
+                    </div>
+                    <div class="pet-list-info">
+                        <div class="pet-list-name">可可</div>
+                        <div class="pet-list-details">泰迪 · 2岁 · ♀ · 喜欢玩球</div>
+                        <div class="pet-list-distance">距离 500m · 在线</div>
+                    </div>
+                </div>
+                
+                <div class="pet-list-item" onclick="viewPetProfile('prince')">
+                    <div class="pet-list-avatar">
+                        <i class="fas fa-dog text-white"></i>
+                    </div>
+                    <div class="pet-list-info">
+                        <div class="pet-list-name">王子</div>
+                        <div class="pet-list-details">边牧 · 3岁 · ♂ · 超级聪明</div>
+                        <div class="pet-list-distance">距离 650m · 2小时前在线</div>
+                    </div>
+                </div>
+                
+                <div class="pet-list-item" onclick="viewPetProfile('whiskers')">
+                    <div class="pet-list-avatar cat">
+                        <i class="fas fa-cat text-white"></i>
+                    </div>
+                    <div class="pet-list-info">
+                        <div class="pet-list-name">胡须</div>
+                        <div class="pet-list-details">橘猫 · 1岁 · ♂ · 爱晒太阳</div>
+                        <div class="pet-list-distance">距离 720m · 在线</div>
+                    </div>
+                </div>
+                
+                <div class="pet-list-item" onclick="viewPetProfile('bella')">
+                    <div class="pet-list-avatar female">
+                        <i class="fas fa-dog text-white"></i>
+                    </div>
+                    <div class="pet-list-info">
+                        <div class="pet-list-name">贝拉</div>
+                        <div class="pet-list-details">比熊 · 2岁 · ♀ · 温柔可爱</div>
+                        <div class="pet-list-distance">距离 850m · 1小时前在线</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <button class="nav-item" onclick="goHome()">
+                    <i class="fas fa-home text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-list text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showMap()">
+                    <i class="fas fa-location-dot text-base"></i>
+                </button>
+                <button class="nav-item active" onclick="showProfile()">
+                    <i class="fas fa-user text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let myPetMarker;
+        let petMarkers = [];
+        let currentPopupPet = null;
+        
+        // 我的宠物位置
+        const myPetLocation = [121.627856, 29.873388];
+        
+        // 宠物数据和位置
+        const pets = [
+            { 
+                id: 'buddy', 
+                name: '小白', 
+                type: 'dog', 
+                breed: '金毛', 
+                age: 2, 
+                gender: '♂', 
+                distance: 150, 
+                online: true,
+                position: [121.629856, 29.875388],
+                description: '活泼好动，喜欢游泳'
+            },
+            { 
+                id: 'luna', 
+                name: 'Luna', 
+                type: 'dog', 
+                breed: '拉布拉多', 
+                age: 1, 
+                gender: '♀', 
+                distance: 280, 
+                online: true,
+                position: [121.625856, 29.876388],
+                description: '温柔可爱，很亲人'
+            },
+            { 
+                id: 'mimi', 
+                name: '咪咪', 
+                type: 'cat', 
+                breed: '英短', 
+                age: 3, 
+                gender: '♀', 
+                distance: 350, 
+                online: false,
+                position: [121.631856, 29.871388],
+                description: '高冷美丽，偶尔撒娇'
+            },
+            { 
+                id: 'max', 
+                name: 'Max', 
+                type: 'dog', 
+                breed: '哈士奇', 
+                age: 4, 
+                gender: '♂', 
+                distance: 420, 
+                online: true,
+                position: [121.624856, 29.879388],
+                description: '精力充沛，爱拆家'
+            },
+            { 
+                id: 'coco', 
+                name: '可可', 
+                type: 'dog', 
+                breed: '泰迪', 
+                age: 2, 
+                gender: '♀', 
+                distance: 500, 
+                online: true,
+                position: [121.632856, 29.878388],
+                description: '聪明伶俐，喜欢玩球'
+            },
+            { 
+                id: 'prince', 
+                name: '王子', 
+                type: 'dog', 
+                breed: '边牧', 
+                age: 3, 
+                gender: '♂', 
+                distance: 650, 
+                online: false,
+                position: [121.620856, 29.875388],
+                description: '超级聪明，会很多技能'
+            },
+            { 
+                id: 'whiskers', 
+                name: '胡须', 
+                type: 'cat', 
+                breed: '橘猫', 
+                age: 1, 
+                gender: '♂', 
+                distance: 720, 
+                online: true,
+                position: [121.633856, 29.870388],
+                description: '爱晒太阳，贪吃小胖子'
+            },
+            { 
+                id: 'bella', 
+                name: '贝拉', 
+                type: 'dog', 
+                breed: '比熊', 
+                age: 2, 
+                gender: '♀', 
+                distance: 850, 
+                online: false,
+                position: [121.635856, 29.876388],
+                description: '雪白可爱，性格温和'
+            }
+        ];
+
+        // 初始化高德地图
+        function initMap() {
+            try {
+                map = new AMap.Map('amap-container', {
+                    center: [121.627856, 29.873388],
+                    zoom: 14,
+                    mapStyle: 'amap://styles/normal',
+                    showLabel: true,
+                    scrollWheel: true,
+                    touchZoom: true,
+                    doubleClickZoom: true,
+                    keyboardEnable: true,
+                    dragEnable: true,
+                    zoomEnable: true,
+                    rotateEnable: true,
+                    animateEnable: true,
+                    jogEnable: true,
+                    pitchEnable: false,
+                    buildingAnimation: true,
+                    features: ['bg', 'road', 'building', 'point']
+                });
+
+                // 添加地图标记
+                addMapMarkers();
+
+                // 地图点击事件
+                map.on('click', function() {
+                    closePopup();
+                });
+
+                // 地图加载完成回调
+                map.on('complete', function() {
+                    console.log('宠物交友地图加载完成');
+                });
+
+            } catch (error) {
+                console.error('高德地图初始化失败:', error);
+                document.getElementById('amap-container').innerHTML = `
+                    <div style="
+                        width: 100%; 
+                        height: 100%; 
+                        background: #f8f9fa;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #6c757d;
+                        font-size: 14px;
+                    ">
+                        地图加载中...
+                    </div>
+                `;
+            }
+        }
+
+        // 添加地图标记
+        function addMapMarkers() {
+            if (!map) return;
+
+            // 添加我的宠物标记
+            myPetMarker = new AMap.Marker({
+                position: myPetLocation,
+                title: '多大的位置',
+                content: `
+                    <div style="
+                        width: 48px; 
+                        height: 48px; 
+                        border-radius: 50%; 
+                        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                        border: 3px solid white;
+                        box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        animation: pet-pulse 2s ease-in-out infinite;
+                    ">
+                        <i class="fas fa-dog" style="color: white; font-size: 20px;"></i>
+                    </div>
+                `
+            });
+
+            // 添加其他宠物标记
+            pets.forEach(pet => {
+                const petColor = getPetColor(pet);
+                const petIcon = pet.type === 'cat' ? 'fa-cat' : 'fa-dog';
+                const onlineIndicator = pet.online ? `
+                    <div style="
+                        position: absolute;
+                        top: -2px;
+                        right: -2px;
+                        width: 12px;
+                        height: 12px;
+                        background: #22c55e;
+                        border: 2px solid white;
+                        border-radius: 50%;
+                    "></div>
+                ` : '';
+
+                const marker = new AMap.Marker({
+                    position: pet.position,
+                    title: pet.name,
+                    content: `
+                        <div style="
+                            position: relative;
+                            width: 40px; 
+                            height: 40px; 
+                            border-radius: 50%; 
+                            background: ${petColor};
+                            border: 2px solid white;
+                            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            <i class="fas ${petIcon}" style="color: white; font-size: 16px;"></i>
+                            ${onlineIndicator}
+                        </div>
+                    `
+                });
+
+                // 点击宠物标记显示弹窗
+                marker.on('click', function() {
+                    showPetPopup(pet, marker);
+                });
+
+                petMarkers.push({ marker, pet });
+            });
+
+            // 添加所有标记到地图
+            const allMarkers = [myPetMarker, ...petMarkers.map(item => item.marker)];
+            map.add(allMarkers);
+        }
+
+        // 获取宠物颜色
+        function getPetColor(pet) {
+            if (pet.type === 'cat') {
+                return 'linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%)';
+            } else if (pet.gender === '♀') {
+                return 'linear-gradient(135deg, #e91e63 0%, #f06292 100%)';
+            } else {
+                return 'linear-gradient(135deg, #2196f3 0%, #64b5f6 100%)';
+            }
+        }
+
+        // 显示宠物弹窗
+        function showPetPopup(pet, marker) {
+            currentPopupPet = pet;
+            const popup = document.getElementById('petInfoPopup');
+            const popupAvatar = document.getElementById('popupAvatar');
+            const popupName = document.getElementById('popupName');
+            const popupDetails = document.getElementById('popupDetails');
+
+            // 设置弹窗内容
+            popupName.textContent = pet.name;
+            popupDetails.textContent = `${pet.breed} · ${pet.age}岁 · ${pet.gender} · ${pet.description}`;
+            popupAvatar.style.background = getPetColor(pet);
+            popupAvatar.innerHTML = `<i class="fas ${pet.type === 'cat' ? 'fa-cat' : 'fa-dog'} text-white"></i>`;
+
+            // 计算弹窗位置
+            const markerPixel = map.lngLatToContainer(marker.getPosition());
+            popup.style.left = Math.min(markerPixel.x - 100, 275) + 'px';
+            popup.style.top = Math.max(markerPixel.y - 120, 10) + 'px';
+            popup.style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closePopup() {
+            const popup = document.getElementById('petInfoPopup');
+            popup.style.display = 'none';
+            currentPopupPet = null;
+        }
+
+        // 连接宠物
+        function connectPet() {
+            if (currentPopupPet) {
+                showNotification(`向 ${currentPopupPet.name} 发送交友请求`);
+                closePopup();
+            }
+        }
+
+        // 切换视图
+        function toggleView(view) {
+            const listToggle = document.getElementById('listToggle');
+            const mapToggle = document.getElementById('mapToggle');
+            const listView = document.getElementById('listView');
+            const mapView = document.getElementById('mapView');
+
+            if (view === 'list') {
+                listToggle.classList.add('active');
+                mapToggle.classList.remove('active');
+                listView.classList.remove('hidden');
+                mapView.classList.add('hidden');
+            } else {
+                mapToggle.classList.add('active');
+                listToggle.classList.remove('active');
+                mapView.classList.remove('hidden');
+                listView.classList.add('hidden');
+            }
+        }
+
+        // 筛选宠物
+        function filterPets(type) {
+            // 更新筛选按钮状态
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 筛选地图标记
+            petMarkers.forEach(item => {
+                const shouldShow = type === 'all' || 
+                                 (type === 'dog' && item.pet.type === 'dog') ||
+                                 (type === 'cat' && item.pet.type === 'cat') ||
+                                 (type === 'nearby' && item.pet.distance <= 500) ||
+                                 (type === 'online' && item.pet.online);
+                
+                if (shouldShow) {
+                    item.marker.show();
+                } else {
+                    item.marker.hide();
+                }
+            });
+            
+            showNotification(`筛选: ${getFilterName(type)}`);
+        }
+
+        function getFilterName(type) {
+            const names = {
+                'all': '全部',
+                'dog': '狗狗',
+                'cat': '猫咪',
+                'nearby': '附近',
+                'online': '在线'
+            };
+            return names[type] || '全部';
+        }
+
+        // 查看宠物详情
+        function viewPetProfile(petId) {
+            const pet = pets.find(p => p.id === petId);
+            if (pet) {
+                showNotification(`查看 ${pet.name} 的详情`);
+            }
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('返回地图页面');
+        }
+
+        // 导航功能
+        function goHome() {
+            showNotification('🏠 首页');
+        }
+
+        function showHistory() {
+            showNotification('📋 历史记录');
+        }
+
+        function showMap() {
+            showNotification('🗺️ 地图');
+        }
+
+        function showProfile() {
+            showNotification('👤 个人资料');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+            @keyframes pet-pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.4s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+
+        // 初始化地图
+        setTimeout(initMap, 100);
+    </script>
+</body>
+</html>

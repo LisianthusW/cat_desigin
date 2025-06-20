@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物活动轨迹 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=6c1576bd552c7e09cbacc760e14f6618&plugin=AMap.Scale"></script>
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            z-index: 100;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 高德地图容器 */
+        #amap-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        /* 地图样式覆盖 */
+        .amap-logo, .amap-copyright {
+            opacity: 0.3 !important;
+        }
+        
+        .date-selector {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+        
+        .date-arrow {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 107, 53, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .date-arrow:hover {
+            background: rgba(255, 107, 53, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .date-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff6b35;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .time-control {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+        
+        .time-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .time-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .time-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff6b35;
+        }
+        
+        .time-slider-container {
+            position: relative;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+        }
+        
+        .time-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: transparent;
+            outline: none;
+            position: absolute;
+            top: 0;
+        }
+        
+        .time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff6b35;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .time-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        .time-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .right-controls {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 20;
+        }
+        
+        .control-button {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .control-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .bottom-actions {
+            position: absolute;
+            bottom: 180px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 20;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #333;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border: none;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-button.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+        
+        .action-button i {
+            font-size: 10px;
+        }
+        
+        .pet-stats-card {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            z-index: 30;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .pet-stats-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .pet-stats-content {
+            flex: 1;
+        }
+        
+        .pet-stats-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .pet-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .battery-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .battery-icon {
+            width: 16px;
+            height: 10px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 2px;
+            width: 2px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 0 1px 1px 0;
+        }
+        
+        .battery-level {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: #ff6b35;
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+        
+        .activity-stats {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .steps-count {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-right: 4px;
+        }
+        
+        .sync-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(52, 199, 89, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            flex-shrink: 0;
+        }
+        
+        .sync-button:hover {
+            background: rgba(52, 199, 89, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            z-index: 50;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+        }
+        
+        .nav-items {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .nav-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .nav-item:not(.active) {
+            color: #999;
+            background: transparent;
+        }
+        
+        .nav-item:not(.active):hover {
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+        
+        .track-path {
+            stroke: #dc2626;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 8, 5;
+            animation: dashMove 3s linear infinite;
+        }
+        
+        @keyframes dashMove {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -13; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>9:41</span>
+            </div>
+            <div class="status-right">
+                <div class="flex items-center gap-1">
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+                <i class="fas fa-wifi text-sm"></i>
+                <div class="w-6 h-3 border border-black rounded-sm relative">
+                    <div class="absolute right-0 top-0 w-4 h-full bg-black rounded-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地图主界面 -->
+        <div class="map-container">
+            <!-- 高德地图容器 -->
+            <div id="amap-container"></div>
+            
+            <!-- 日期选择器 -->
+            <div class="date-selector">
+                <button class="date-arrow" onclick="changeDate(-1)">
+                    <i class="fas fa-chevron-left text-orange-500 text-xs"></i>
+                </button>
+                <span class="date-text" id="currentDate">2024-05-16</span>
+                <button class="date-arrow" onclick="changeDate(1)">
+                    <i class="fas fa-chevron-right text-orange-500 text-xs"></i>
+                </button>
+            </div>
+            
+            <!-- 时间控制器 -->
+            <div class="time-control">
+                <div class="time-header">
+                    <span class="time-label">时间</span>
+                    <span class="time-value" id="currentTime">12:43</span>
+                </div>
+                <div class="time-slider-container">
+                    <div class="time-track" id="timeTrack" style="width: 53%"></div>
+                    <input type="range" min="0" max="1440" value="763" class="time-slider" id="timeSlider" oninput="updateTime(this.value)">
+                </div>
+            </div>
+            
+            <!-- 右侧控制按钮 -->
+            <div class="right-controls">
+                <button class="control-button" onclick="centerLocation()">
+                    <i class="fas fa-crosshairs text-gray-600 text-lg"></i>
+                </button>
+                <button class="control-button" onclick="refreshTrack()">
+                    <i class="fas fa-sync text-gray-600 text-lg"></i>
+                </button>
+                <button class="control-button" onclick="showDevice()">
+                    <i class="fas fa-mobile-alt text-gray-600 text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- 底部操作按钮 -->
+            <div class="bottom-actions">
+                <button class="action-button" onclick="petSocial()">
+                    <i class="fas fa-heart text-gray-500"></i>
+                    <span>宠物交友</span>
+                </button>
+                <button class="action-button active" onclick="activityTrack()">
+                    <i class="fas fa-route"></i>
+                    <span>活动轨迹</span>
+                </button>
+                <button class="action-button" onclick="petTravel()">
+                    <i class="fas fa-map-marker-alt text-gray-500"></i>
+                    <span>宠物出行</span>
+                </button>
+            </div>
+            
+            <!-- 宠物数据统计卡片 -->
+            <div class="pet-stats-card">
+                <div class="pet-stats-avatar">
+                    <i class="fas fa-dog text-white text-lg"></i>
+                </div>
+                <div class="pet-stats-content">
+                    <div class="pet-stats-header">
+                        <span class="pet-name">糯糯</span>
+                        <div class="battery-info">
+                            <div class="battery-icon">
+                                <div class="battery-level" style="width: 20%"></div>
+                            </div>
+                            <span>20%</span>
+                        </div>
+                    </div>
+                    <div class="activity-stats">
+                        今日运动数据：<span class="steps-count">2705</span>Steps
+                    </div>
+                </div>
+                <button class="sync-button" onclick="syncData()">
+                    <i class="fas fa-sync-alt text-green-500"></i>
+                </button>
+            </div>
+            
+            <!-- 底部导航栏 -->
+            <div class="bottom-nav">
+                <div class="nav-items">
+                    <button class="nav-item" onclick="goHome()">
+                        <i class="fas fa-home text-base"></i>
+                    </button>
+                    <button class="nav-item" onclick="showHistory()">
+                        <i class="fas fa-list text-base"></i>
+                    </button>
+                    <button class="nav-item active" onclick="showMap()">
+                        <i class="fas fa-location-dot text-lg"></i>
+                    </button>
+                    <button class="nav-item" onclick="showProfile()">
+                        <i class="fas fa-user text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let trackPolyline;
+        let startMarker;
+        let endMarker;
+        let zooMarker;
+        let currentTimeMarker;
+        
+        // 轨迹数据点
+        const trackData = [
+            { position: [121.625856, 29.870388], time: '09:30' },
+            { position: [121.627856, 29.872388], time: '10:15' },
+            { position: [121.630856, 29.874388], time: '11:00' },
+            { position: [121.633856, 29.876388], time: '11:45' },
+            { position: [121.635856, 29.878388], time: '12:30' },
+            { position: [121.637856, 29.880388], time: '12:43' }
+        ];
+        
+        const zooLocation = [121.645856, 29.883388];
+        let currentDate = new Date('2024-05-16');
+
+        // 初始化高德地图
+        function initMap() {
+            try {
+                map = new AMap.Map('amap-container', {
+                    center: [121.631856, 29.875388],
+                    zoom: 14,
+                    mapStyle: 'amap://styles/normal',
+                    showLabel: true,
+                    scrollWheel: true,
+                    touchZoom: true,
+                    doubleClickZoom: true,
+                    keyboardEnable: true,
+                    dragEnable: true,
+                    zoomEnable: true,
+                    rotateEnable: true,
+                    animateEnable: true,
+                    jogEnable: true,
+                    pitchEnable: false,
+                    buildingAnimation: true,
+                    features: ['bg', 'road', 'building', 'point']
+                });
+
+                // 添加轨迹和标记
+                addTrackAndMarkers();
+
+                // 地图加载完成回调
+                map.on('complete', function() {
+                    console.log('宠物活动轨迹地图加载完成');
+                });
+
+            } catch (error) {
+                console.error('高德地图初始化失败:', error);
+                document.getElementById('amap-container').innerHTML = `
+                    <div style="
+                        width: 100%; 
+                        height: 100%; 
+                        background: #f8f9fa;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #6c757d;
+                        font-size: 14px;
+                    ">
+                        地图加载中...
+                    </div>
+                `;
+            }
+        }
+
+        // 添加轨迹和标记
+        function addTrackAndMarkers() {
+            if (!map) return;
+
+            // 创建轨迹线
+            const trackPath = trackData.map(point => point.position);
+            trackPolyline = new AMap.Polyline({
+                path: trackPath,
+                strokeColor: '#dc2626',
+                strokeWeight: 3,
+                strokeStyle: 'dashed',
+                strokeOpacity: 0.8,
+                lineJoin: 'round',
+                lineCap: 'round'
+            });
+
+            // 起点标记
+            startMarker = new AMap.Marker({
+                position: trackData[0].position,
+                title: '起点',
+                content: `
+                    <div style="
+                        width: 48px; 
+                        height: 48px; 
+                        border-radius: 50%; 
+                        background: #00bcd4;
+                        border: 3px solid white;
+                        box-shadow: 0 0 16px rgba(0, 188, 212, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                    ">
+                        <i class="fas fa-dog" style="color: white; font-size: 18px;"></i>
+                        <div style="
+                            position: absolute;
+                            bottom: -25px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: rgba(0, 188, 212, 0.9);
+                            color: white;
+                            padding: 2px 8px;
+                            border-radius: 10px;
+                            font-size: 10px;
+                            font-weight: 500;
+                            white-space: nowrap;
+                        ">12:43</div>
+                    </div>
+                `
+            });
+
+            // 终点标记
+            endMarker = new AMap.Marker({
+                position: trackData[trackData.length - 1].position,
+                title: '当前位置',
+                content: `
+                    <div style="
+                        width: 48px; 
+                        height: 48px; 
+                        border-radius: 50%; 
+                        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                        border: 3px solid white;
+                        box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        animation: pet-pulse 2s ease-in-out infinite;
+                    ">
+                        <i class="fas fa-dog" style="color: white; font-size: 18px;"></i>
+                    </div>
+                `
+            });
+
+            // 动物园标记
+            zooMarker = new AMap.Marker({
+                position: zooLocation,
+                title: '宁波野生动物园',
+                content: `
+                    <div style="
+                        background: #4caf50;
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 16px;
+                        font-size: 11px;
+                        font-weight: 500;
+                        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        white-space: nowrap;
+                    ">
+                        <i class="fas fa-paw" style="font-size: 10px;"></i>
+                        宁波野生动物园
+                    </div>
+                `
+            });
+
+            // 添加到地图
+            map.add([trackPolyline, startMarker, endMarker, zooMarker]);
+        }
+
+        // 更新时间
+        function updateTime(value) {
+            const hours = Math.floor(value / 60);
+            const minutes = value % 60;
+            const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            
+            document.getElementById('currentTime').textContent = timeStr;
+            
+            // 更新时间轨道
+            const percentage = (value / 1440) * 100;
+            document.getElementById('timeTrack').style.width = percentage + '%';
+            
+            // 更新宠物在轨迹上的位置（模拟）
+            updatePetPosition(value);
+        }
+
+        // 更新宠物位置
+        function updatePetPosition(timeValue) {
+            // 根据时间计算宠物在轨迹上的位置
+            const progress = timeValue / 1440; // 一天的进度
+            const trackIndex = Math.floor(progress * (trackData.length - 1));
+            const currentPos = trackData[Math.min(trackIndex, trackData.length - 1)];
+            
+            if (endMarker && currentPos) {
+                endMarker.setPosition(currentPos.position);
+            }
+        }
+
+        // 更改日期
+        function changeDate(direction) {
+            const newDate = new Date(currentDate);
+            newDate.setDate(newDate.getDate() + direction);
+            currentDate = newDate;
+            
+            const dateStr = currentDate.toISOString().slice(0, 10);
+            document.getElementById('currentDate').textContent = dateStr;
+            
+            showNotification(`切换到 ${dateStr}`);
+        }
+
+        // 定位到轨迹
+        function centerLocation() {
+            if (map && trackPolyline) {
+                map.setFitView([trackPolyline]);
+                showNotification('🎯 已定位到活动轨迹');
+            }
+        }
+
+        // 刷新轨迹
+        function refreshTrack() {
+            showNotification('🔄 正在刷新活动轨迹');
+        }
+
+        // 显示设备信息
+        function showDevice() {
+            showNotification('📱 设备信息');
+        }
+
+        // 同步数据
+        function syncData() {
+            const button = event.target.closest('.sync-button');
+            button.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                button.style.transform = 'rotate(0deg)';
+            }, 600);
+            
+            showNotification('📊 数据同步中...');
+        }
+
+        // 宠物交友
+        function petSocial() {
+            // 更新按钮状态
+            updateActionButtons('social');
+            showNotification('💕 宠物交友');
+        }
+
+        // 活动轨迹
+        function activityTrack() {
+            showNotification('📍 活动轨迹');
+        }
+
+        // 宠物出行
+        function petTravel() {
+            // 更新按钮状态
+            updateActionButtons('travel');
+            showNotification('🚗 宠物出行');
+        }
+
+        // 更新操作按钮状态
+        function updateActionButtons(activeType) {
+            const buttons = document.querySelectorAll('.action-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                if (activeType === 'social' && button.textContent.includes('宠物交友')) {
+                    button.classList.add('active');
+                } else if (activeType === 'activity' && button.textContent.includes('活动轨迹')) {
+                    button.classList.add('active');
+                } else if (activeType === 'travel' && button.textContent.includes('宠物出行')) {
+                    button.classList.add('active');
+                }
+            });
+        }
+
+        // 导航功能
+        function goHome() {
+            showNotification('🏠 首页');
+        }
+
+        function showHistory() {
+            showNotification('📋 历史记录');
+        }
+
+        function showMap() {
+            showNotification('🗺️ 地图');
+        }
+
+        function showProfile() {
+            showNotification('👤 个人资料');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+            @keyframes pet-pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.4s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+
+        // 初始化地图
+        setTimeout(initMap, 100);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备关联宠物 - 宠物智能追踪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            flex-shrink: 0;
+        }
+        .content-section {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-y: auto;
+        }
+        .device-card, .pet-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(15px);
+        }
+        .device-card:hover, .pet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .scanning-animation {
+            animation: scanning 2s linear infinite;
+        }
+        @keyframes scanning {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .pulse-dot {
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+        .slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .confirm-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        .confirm-button:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+            transform: translateY(-1px);
+        }
+        .device-status-online {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .device-status-offline {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .selected-card {
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部标题栏 -->
+        <div class="header-section px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button onclick="goBack()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                    <i class="fas fa-arrow-left text-white text-lg"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold text-white">设备关联宠物</h1>
+                    <p class="text-sm text-white text-opacity-80">为您的宠物绑定追踪设备</p>
+                </div>
+            </div>
+            <button onclick="startScanning()" class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-white text-sm font-medium backdrop-filter backdrop-blur-10">
+                <i class="fas fa-search mr-2"></i>扫描设备
+            </button>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="content-section p-4 space-y-4">
+            <!-- 设备扫描状态 -->
+            <div class="device-card rounded-xl p-4" id="scanningStatus">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800">可用设备</h2>
+                    <div class="flex items-center space-x-2">
+                        <div class="pulse-dot w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">正在扫描...</span>
+                    </div>
+                </div>
+                
+                <!-- 设备列表 -->
+                <div class="space-y-3" id="deviceList">
+                    <!-- 设备项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 宠物选择区域 -->
+            <div class="device-card rounded-xl p-4" id="petSelection" style="display: none;">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">选择宠物档案</h2>
+                
+                <!-- 现有宠物列表 -->
+                <div class="space-y-3 mb-4" id="existingPets">
+                    <div class="pet-card rounded-lg p-3 border-2 border-transparent cursor-pointer" onclick="selectPet(this, 'existing-1')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dog text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">多大</h3>
+                                <p class="text-sm text-gray-600">犬牌号: P000002516</p>
+                                <p class="text-xs text-gray-500">金毛犬 · 3岁</p>
+                            </div>
+                            <i class="fas fa-check-circle text-gray-300 text-xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="pet-card rounded-lg p-3 border-2 border-transparent cursor-pointer" onclick="selectPet(this, 'existing-2')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-cat text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">小花</h3>
+                                <p class="text-sm text-gray-600">犬牌号: P000002517</p>
+                                <p class="text-xs text-gray-500">英短猫 · 2岁</p>
+                            </div>
+                            <i class="fas fa-check-circle text-gray-300 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新建宠物选项 -->
+                <div class="border-t pt-4">
+                    <button onclick="createNewPet()" class="w-full pet-card rounded-lg p-3 border-2 border-dashed border-gray-300 hover:border-yellow-400 text-center">
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
+                                <i class="fas fa-plus text-gray-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-700">新建宠物档案</h3>
+                                <p class="text-sm text-gray-500">为新宠物创建档案信息</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 关联确认区域 -->
+            <div class="device-card rounded-xl p-4" id="confirmSection" style="display: none;">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">确认关联信息</h2>
+                
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-700">设备信息</span>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">在线</span>
+                    </div>
+                    <div class="flex items-center space-x-3" id="selectedDeviceInfo">
+                        <!-- 动态填充设备信息 -->
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-700">宠物信息</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">已选择</span>
+                    </div>
+                    <div class="flex items-center space-x-3" id="selectedPetInfo">
+                        <!-- 动态填充宠物信息 -->
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-info-circle text-yellow-500 mt-0.5"></i>
+                        <div class="text-sm text-yellow-700">
+                            <p class="font-medium mb-1">关联须知：</p>
+                            <ul class="space-y-1 text-xs">
+                                <li>• 设备关联后将开始实时定位追踪</li>
+                                <li>• 一个设备只能关联一只宠物</li>
+                                <li>• 关联成功后可在主页面查看位置信息</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部操作按钮 -->
+        <div class="px-4 py-4 bg-white flex-shrink-0" id="bottomActions">
+            <button onclick="confirmBinding()" class="confirm-button w-full py-4 rounded-full text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <i class="fas fa-link mr-2"></i>确认关联
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let selectedDevice = null;
+        let selectedPet = null;
+        let isScanning = false;
+
+        // 模拟设备数据
+        const mockDevices = [
+            {
+                id: 'device-001',
+                name: 'PetTracker Pro',
+                model: 'PT-2024',
+                battery: 85,
+                signal: 'strong',
+                status: 'online',
+                macAddress: 'AA:BB:CC:DD:EE:01'
+            },
+            {
+                id: 'device-002', 
+                name: 'SmartCollar X1',
+                model: 'SC-X1',
+                battery: 62,
+                signal: 'medium',
+                status: 'online',
+                macAddress: 'AA:BB:CC:DD:EE:02'
+            },
+            {
+                id: 'device-003',
+                name: 'PetGPS Mini',
+                model: 'PG-Mini',
+                battery: 0,
+                signal: 'none',
+                status: 'offline',
+                macAddress: 'AA:BB:CC:DD:EE:03'
+            }
+        ];
+
+        // 开始扫描设备
+        function startScanning() {
+            isScanning = true;
+            const deviceList = document.getElementById('deviceList');
+            deviceList.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner scanning-animation text-3xl text-yellow-500 mb-3"></i><br><span class="text-gray-500">正在扫描附近设备...</span></div>';
+            
+            // 模拟扫描延迟
+            setTimeout(() => {
+                displayDevices();
+                isScanning = false;
+            }, 2000);
+        }
+
+        // 显示设备列表
+        function displayDevices() {
+            const deviceList = document.getElementById('deviceList');
+            deviceList.innerHTML = '';
+            
+            mockDevices.forEach(device => {
+                const deviceElement = createDeviceElement(device);
+                deviceList.appendChild(deviceElement);
+            });
+        }
+
+        // 创建设备元素
+        function createDeviceElement(device) {
+            const div = document.createElement('div');
+            div.className = `device-item p-3 border-2 border-transparent rounded-lg cursor-pointer ${device.status === 'offline' ? 'opacity-50' : ''}`;
+            div.onclick = () => device.status === 'online' && selectDevice(div, device);
+            
+            div.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-microchip text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <h3 class="font-semibold text-gray-800">${device.name}</h3>
+                            <span class="device-status-${device.status} text-xs text-white px-2 py-1 rounded-full">${device.status === 'online' ? '在线' : '离线'}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-1">型号: ${device.model}</p>
+                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                            <span><i class="fas fa-battery-three-quarters mr-1"></i>${device.battery}%</span>
+                            <span><i class="fas fa-signal mr-1"></i>${device.signal === 'strong' ? '强' : device.signal === 'medium' ? '中' : '无'}</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-check-circle text-gray-300 text-xl check-icon"></i>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 选择设备
+        function selectDevice(element, device) {
+            // 清除其他选择
+            document.querySelectorAll('.device-item').forEach(item => {
+                item.classList.remove('selected-card');
+                item.querySelector('.check-icon').style.color = '#d1d5db';
+            });
+            
+            // 选中当前设备
+            element.classList.add('selected-card');
+            element.querySelector('.check-icon').style.color = '#fbbf24';
+            
+            selectedDevice = device;
+            
+            // 显示宠物选择区域
+            document.getElementById('petSelection').style.display = 'block';
+            document.getElementById('petSelection').classList.add('slide-up');
+            
+            showNotification('✅ 设备选择成功');
+        }
+
+        // 选择宠物
+        function selectPet(element, petId) {
+            // 清除其他选择
+            document.querySelectorAll('.pet-card').forEach(item => {
+                item.classList.remove('selected-card');
+                const icon = item.querySelector('.fa-check-circle');
+                if (icon) icon.style.color = '#d1d5db';
+            });
+            
+            // 选中当前宠物
+            element.classList.add('selected-card');
+            element.querySelector('.fa-check-circle').style.color = '#fbbf24';
+            
+            // 保存选择的宠物信息
+            selectedPet = {
+                id: petId,
+                name: element.querySelector('h3').textContent,
+                tag: element.querySelector('.text-sm').textContent,
+                info: element.querySelector('.text-xs').textContent
+            };
+            
+            // 显示确认区域
+            showConfirmSection();
+            
+            showNotification('✅ 宠物选择成功');
+        }
+
+        // 显示确认区域
+        function showConfirmSection() {
+            if (selectedDevice && selectedPet) {
+                // 填充设备信息
+                document.getElementById('selectedDeviceInfo').innerHTML = `
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-microchip text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${selectedDevice.name}</h4>
+                        <p class="text-sm text-gray-600">${selectedDevice.model} · ${selectedDevice.macAddress}</p>
+                    </div>
+                `;
+                
+                // 填充宠物信息
+                document.getElementById('selectedPetInfo').innerHTML = `
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-dog text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${selectedPet.name}</h4>
+                        <p class="text-sm text-gray-600">${selectedPet.tag}</p>
+                    </div>
+                `;
+                
+                document.getElementById('confirmSection').style.display = 'block';
+                document.getElementById('confirmSection').classList.add('slide-up');
+                
+                // 启用确认按钮
+                document.querySelector('.confirm-button').disabled = false;
+            }
+        }
+
+        // 确认关联
+        function confirmBinding() {
+            if (!selectedDevice || !selectedPet) {
+                showNotification('❌ 请先选择设备和宠物');
+                return;
+            }
+            
+            // 显示加载状态
+            const button = document.querySelector('.confirm-button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>正在关联...';
+            button.disabled = true;
+            
+            // 模拟关联过程
+            setTimeout(() => {
+                showSuccessMessage();
+            }, 2000);
+        }
+
+        // 显示成功消息
+        function showSuccessMessage() {
+            const container = document.querySelector('.pet-tracker-container');
+            container.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-check text-white text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-3">关联成功！</h2>
+                    <p class="text-white text-opacity-80 mb-8">设备已成功关联到您的宠物，现在可以开始实时追踪了</p>
+                    
+                    <div class="bg-white bg-opacity-20 rounded-xl p-4 mb-8 backdrop-filter backdrop-blur-10">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-white text-sm font-medium">关联信息</span>
+                        </div>
+                        <div class="space-y-2 text-sm text-white text-opacity-90">
+                            <div class="flex justify-between">
+                                <span>设备:</span>
+                                <span>${selectedDevice.name}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>宠物:</span>
+                                <span>${selectedPet.name}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>关联时间:</span>
+                                <span>${new Date().toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 w-full">
+                        <button onclick="goToTracker()" class="w-full bg-white text-purple-600 font-semibold py-4 rounded-full">
+                            <i class="fas fa-location-dot mr-2"></i>查看宠物位置
+                        </button>
+                        <button onclick="goBack()" class="w-full bg-white bg-opacity-20 text-white font-semibold py-4 rounded-full backdrop-filter backdrop-blur-10">
+                            <i class="fas fa-arrow-left mr-2"></i>返回主页
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 创建新宠物
+        function createNewPet() {
+            showNotification('🐕 跳转到新建宠物页面');
+            // 这里应该跳转到新建宠物页面
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('🔙 返回上级页面');
+            // 这里应该实现页面返回逻辑
+        }
+
+        // 跳转到追踪页面
+        function goToTracker() {
+            showNotification('📍 跳转到宠物追踪页面');
+            // 这里应该跳转到宠物追踪主页
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: notification-show 2.5s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2500);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+            
+            // 自动开始扫描
+            setTimeout(startScanning, 800);
+        });
+    </script>
+</body>
+</html> 

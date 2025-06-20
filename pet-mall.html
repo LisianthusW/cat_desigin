@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物商城 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            flex-shrink: 0;
+        }
+        .content-section {
+            flex: 1;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-y: auto;
+            /* 隐藏滚动条 */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content-section::-webkit-scrollbar {
+            display: none;
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .banner-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4);
+            /* 增加banner高度 */
+            min-height: 160px;
+        }
+        .category-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .product-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        .price-tag {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            font-weight: bold;
+        }
+        .cart-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .cart-button:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            transform: translateY(-1px);
+        }
+        .nav-button-active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        .slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes bounceIn {
+            from { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .floating-cart {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 50;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .heart-animation {
+            animation: heartBeat 0.6s ease-in-out;
+        }
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .banner-slider {
+            scroll-behavior: smooth;
+            /* 隐藏banner滚动条 */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .banner-slider::-webkit-scrollbar {
+            display: none;
+        }
+        /* 隐藏快速分类导航的滚动条 */
+        .category-nav {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部搜索栏 -->
+        <div class="header-section px-4 py-4 flex-shrink-0">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="flex-1">
+                    <div class="search-bar rounded-full px-4 py-3 flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-3"></i>
+                        <input type="text" placeholder="搜索宠物用品..." class="flex-1 bg-transparent text-gray-700 placeholder-gray-400 outline-none text-sm">
+                        <button class="ml-2 text-yellow-500">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                <button onclick="openCart()" class="relative w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
+                    <i class="fas fa-shopping-cart text-white text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold" id="cartCount">3</span>
+                </button>
+            </div>
+            
+            <!-- 快速分类导航 -->
+            <div class="category-nav flex space-x-2 overflow-x-auto pb-2">
+                <button onclick="filterProducts('all')" class="category-quick-btn bg-white bg-opacity-90 px-4 py-2 rounded-full text-sm font-medium text-gray-700 whitespace-nowrap active">
+                    全部
+                </button>
+                <button onclick="filterProducts('food')" class="category-quick-btn bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    食品
+                </button>
+                <button onclick="filterProducts('toy')" class="category-quick-btn bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    玩具
+                </button>
+                <button onclick="filterProducts('accessories')" class="category-quick-btn bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    用品
+                </button>
+                <button onclick="filterProducts('health')" class="category-quick-btn bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
+                    保健
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="content-section">
+            <!-- 轮播广告 - 增大尺寸 -->
+            <div class="px-4 py-4">
+                <div class="banner-slider flex space-x-4 overflow-x-auto pb-3">
+                    <div class="banner-card min-w-[320px] h-40 p-6 flex items-center justify-between text-white relative overflow-hidden">
+                        <div class="z-10">
+                            <h3 class="text-xl font-bold mb-2">新用户专享</h3>
+                            <p class="text-base opacity-90 mb-4">首单立减50元</p>
+                            <button class="bg-white text-red-500 px-4 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300">
+                                立即领取
+                            </button>
+                        </div>
+                        <div class="text-7xl opacity-20 absolute right-4">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="banner-card min-w-[320px] h-40 p-6 flex items-center justify-between text-white relative overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="z-10">
+                            <h3 class="text-xl font-bold mb-2">春季特惠</h3>
+                            <p class="text-base opacity-90 mb-4">全场8折起</p>
+                            <button class="bg-white text-green-500 px-4 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300">
+                                去看看
+                            </button>
+                        </div>
+                        <div class="text-7xl opacity-20 absolute right-4">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="banner-card min-w-[320px] h-40 p-6 flex items-center justify-between text-white relative overflow-hidden" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                        <div class="z-10">
+                            <h3 class="text-xl font-bold mb-2">限时秒杀</h3>
+                            <p class="text-base opacity-90 mb-4">每日10点开抢</p>
+                            <button class="bg-white text-purple-500 px-4 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300">
+                                立即抢购
+                            </button>
+                        </div>
+                        <div class="text-7xl opacity-20 absolute right-4">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品分类 -->
+            <div class="px-4 py-2">
+                <h2 class="text-lg font-bold text-gray-800 mb-3">商品分类</h2>
+                <div class="grid grid-cols-4 gap-3 mb-4">
+                    <div class="category-item rounded-xl p-3 text-center cursor-pointer" onclick="filterProducts('food')">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-bone text-white text-lg"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">食品</p>
+                    </div>
+                    
+                    <div class="category-item rounded-xl p-3 text-center cursor-pointer" onclick="filterProducts('toy')">
+                        <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-baseball text-white text-lg"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">玩具</p>
+                    </div>
+                    
+                    <div class="category-item rounded-xl p-3 text-center cursor-pointer" onclick="filterProducts('accessories')">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-vest text-white text-lg"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">用品</p>
+                    </div>
+                    
+                    <div class="category-item rounded-xl p-3 text-center cursor-pointer" onclick="filterProducts('health')">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-heartbeat text-white text-lg"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">保健</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热门商品 -->
+            <div class="px-4 py-2 pb-20">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-bold text-gray-800">热门推荐</h2>
+                    <button class="text-sm text-yellow-600 font-medium flex items-center">
+                        更多 <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3" id="productGrid">
+                    <!-- 商品将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 浮动购物车按钮 -->
+        <div class="floating-cart w-14 h-14 rounded-full flex items-center justify-center cursor-pointer" onclick="openCart()">
+            <i class="fas fa-shopping-cart text-white text-xl"></i>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bg-white border-t border-gray-200 px-4 py-2 flex-shrink-0">
+            <div class="flex justify-around items-center">
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToHome()">
+                    <i class="fas fa-home text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">首页</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 relative">
+                    <div class="nav-button-active w-12 h-12 rounded-full flex items-center justify-center -mt-1">
+                        <i class="fas fa-store text-white text-lg"></i>
+                    </div>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToTracker()">
+                    <i class="fas fa-location-dot text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">追踪</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-bell text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">消息</span>
+                </button>
+                <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200">
+                    <i class="fas fa-user text-gray-400 text-base"></i>
+                    <span class="text-xs text-gray-400 font-medium">我的</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟商品数据
+        const products = [
+            {
+                id: 1,
+                name: '皇家犬粮成犬粮',
+                price: 158.00,
+                originalPrice: 198.00,
+                image: '🐕',
+                category: 'food',
+                rating: 4.8,
+                sales: 1234,
+                tag: '热销'
+            },
+            {
+                id: 2,
+                name: '宠物智能饮水机',
+                price: 299.00,
+                originalPrice: 399.00,
+                image: '💧',
+                category: 'accessories',
+                rating: 4.9,
+                sales: 856,
+                tag: '新品'
+            },
+            {
+                id: 3,
+                name: '毛绒发声玩具球',
+                price: 29.90,
+                originalPrice: 39.90,
+                image: '🎾',
+                category: 'toy',
+                rating: 4.7,
+                sales: 2156,
+                tag: '特价'
+            },
+            {
+                id: 4,
+                name: '宠物营养膏',
+                price: 45.00,
+                originalPrice: 55.00,
+                image: '💊',
+                category: 'health',
+                rating: 4.6,
+                sales: 743,
+                tag: '推荐'
+            },
+            {
+                id: 5,
+                name: '可调节宠物牵引绳',
+                price: 68.00,
+                originalPrice: 88.00,
+                image: '🦮',
+                category: 'accessories',
+                rating: 4.8,
+                sales: 987,
+                tag: '热销'
+            },
+            {
+                id: 6,
+                name: '猫咪冻干零食',
+                price: 35.00,
+                originalPrice: 45.00,
+                image: '🐱',
+                category: 'food',
+                rating: 4.9,
+                sales: 1567,
+                tag: '好评'
+            }
+        ];
+
+        let currentFilter = 'all';
+        let cartItems = [];
+
+        // 初始化页面
+        function initPage() {
+            displayProducts(products);
+            updateCartCount();
+        }
+
+        // 显示商品
+        function displayProducts(productsToShow) {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '';
+            
+            productsToShow.forEach((product, index) => {
+                const productCard = createProductCard(product);
+                productCard.style.animationDelay = `${index * 0.1}s`;
+                productCard.classList.add('slide-in');
+                productGrid.appendChild(productCard);
+            });
+        }
+
+        // 创建商品卡片
+        function createProductCard(product) {
+            const div = document.createElement('div');
+            div.className = 'product-card rounded-xl overflow-hidden cursor-pointer';
+            div.onclick = () => openProductDetail(product);
+            
+            div.innerHTML = `
+                <div class="relative">
+                    <div class="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-4xl">
+                        ${product.image}
+                    </div>
+                    <div class="absolute top-2 left-2">
+                        <span class="price-tag text-xs px-2 py-1 rounded-full">${product.tag}</span>
+                    </div>
+                    <button onclick="toggleFavorite(event, ${product.id})" class="absolute top-2 right-2 w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                        <i class="far fa-heart text-gray-500 favorite-icon" id="heart-${product.id}"></i>
+                    </button>
+                </div>
+                <div class="p-3">
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">${product.name}</h3>
+                    <div class="flex items-center space-x-1 mb-2">
+                        <div class="flex items-center">
+                            ${Array(5).fill().map((_, i) => 
+                                `<i class="fas fa-star text-yellow-400 text-xs"></i>`
+                            ).join('')}
+                        </div>
+                        <span class="text-xs text-gray-500">${product.rating}</span>
+                        <span class="text-xs text-gray-400">·${product.sales}人购买</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg font-bold text-red-500">¥${product.price}</span>
+                            <span class="text-xs text-gray-400 line-through">¥${product.originalPrice}</span>
+                        </div>
+                        <button onclick="addToCart(event, ${product.id})" class="cart-button w-8 h-8 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 筛选商品
+        function filterProducts(category) {
+            currentFilter = category;
+            
+            // 更新分类按钮状态
+            document.querySelectorAll('.category-quick-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('bg-white', 'bg-opacity-90', 'text-gray-700');
+                btn.classList.add('bg-white', 'bg-opacity-20', 'text-white');
+            });
+            
+            event.target.classList.add('active');
+            event.target.classList.remove('bg-white', 'bg-opacity-20', 'text-white');
+            event.target.classList.add('bg-white', 'bg-opacity-90', 'text-gray-700');
+            
+            // 筛选并显示商品
+            const filteredProducts = category === 'all' 
+                ? products 
+                : products.filter(product => product.category === category);
+            
+            displayProducts(filteredProducts);
+            showNotification(`📦 显示${filteredProducts.length}个${category === 'all' ? '全部' : getCategoryName(category)}商品`);
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const categoryNames = {
+                'food': '食品',
+                'toy': '玩具',
+                'accessories': '用品',
+                'health': '保健'
+            };
+            return categoryNames[category] || category;
+        }
+
+        // 添加到购物车
+        function addToCart(event, productId) {
+            event.stopPropagation();
+            
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                cartItems.push(product);
+                updateCartCount();
+                
+                // 动画效果
+                const button = event.target.closest('button');
+                button.classList.add('bounce-in');
+                setTimeout(() => button.classList.remove('bounce-in'), 800);
+                
+                showNotification(`✅ ${product.name} 已加入购物车`);
+            }
+        }
+
+        // 切换收藏状态
+        function toggleFavorite(event, productId) {
+            event.stopPropagation();
+            
+            const heartIcon = document.getElementById(`heart-${productId}`);
+            const isFavorited = heartIcon.classList.contains('fas');
+            
+            if (isFavorited) {
+                heartIcon.classList.remove('fas', 'text-red-500');
+                heartIcon.classList.add('far', 'text-gray-500');
+                showNotification('💔 已取消收藏');
+            } else {
+                heartIcon.classList.remove('far', 'text-gray-500');
+                heartIcon.classList.add('fas', 'text-red-500');
+                heartIcon.classList.add('heart-animation');
+                setTimeout(() => heartIcon.classList.remove('heart-animation'), 600);
+                showNotification('❤️ 已添加收藏');
+            }
+        }
+
+        // 更新购物车数量
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cartItems.length;
+        }
+
+        // 打开商品详情
+        function openProductDetail(product) {
+            showNotification(`🔍 查看${product.name}详情`);
+            // 这里应该跳转到商品详情页面
+        }
+
+        // 打开购物车
+        function openCart() {
+            showNotification(`🛒 购物车内有${cartItems.length}件商品`);
+            // 这里应该跳转到购物车页面
+        }
+
+        // 页面跳转函数
+        function goToHome() {
+            showNotification('🏠 返回首页');
+        }
+
+        function goToTracker() {
+            showNotification('📍 跳转到宠物追踪');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: notification-show 2.5s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2500);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            }
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+            
+            // 初始化页面
+            setTimeout(initPage, 500);
+        });
+    </script>
+</body>
+</html> 

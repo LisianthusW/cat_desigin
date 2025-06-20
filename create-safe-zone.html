@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建安全范围 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=6c1576bd552c7e09cbacc760e14f6618&plugin=AMap.Scale"></script>
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        .map-container {
+            position: relative;
+            height: 360px;
+            overflow: hidden;
+        }
+        
+        /* 高德地图容器 */
+        #amap-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        /* 地图样式覆盖 */
+        .amap-logo, .amap-copyright {
+            opacity: 0.3 !important;
+        }
+        
+        .top-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #f1f3f4;
+            z-index: 50;
+            height: 50px;
+        }
+        
+        .top-nav h1 {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: left;
+            flex: 1;
+            margin-left: 12px;
+        }
+        
+        .form-section {
+            flex: 1;
+            background: #ffffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-section {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 8px 16px;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .city-selector {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        
+        .city-selector:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+        
+        .search-input-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-input {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 8px 36px 8px 14px;
+            font-size: 13px;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        
+        .search-input:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .search-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 3px;
+        }
+        
+        .form-content {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+        
+        .input-field {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #ff6b35;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .radius-value {
+            background: #ff6b35;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .slider-container {
+            position: relative;
+            height: 5px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 6px 0;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: transparent;
+            outline: none;
+            position: absolute;
+            top: 0;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6b35;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        .pet-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .pet-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .pet-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .pet-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .change-button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .change-button:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+        
+        .save-button {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(255, 107, 53, 0.3);
+            margin-top: auto;
+        }
+        
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .slider-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 顶部导航栏 -->
+        <div class="top-nav px-4 py-2 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center">
+                <button class="w-9 h-9 flex items-center justify-center" onclick="goBack()">
+                    <i class="fas fa-chevron-left text-gray-700 text-lg"></i>
+                </button>
+                <h1 class="text-gray-800">创建安全范围</h1>
+            </div>
+            <button class="w-9 h-9 flex items-center justify-center" onclick="deleteSafeZone()">
+                <i class="fas fa-trash text-gray-500 text-sm"></i>
+            </button>
+        </div>
+
+        <!-- 地图区域 -->
+        <div class="map-container">
+            <div id="amap-container"></div>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-section">
+            <div class="search-container">
+                <div class="city-selector" onclick="selectCity()">
+                    <span>宁波</span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+                <div class="search-input-container">
+                    <input type="text" placeholder="搜索地点..." class="search-input" />
+                    <button class="search-button" onclick="searchLocation()">
+                        <i class="fas fa-search text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单区域 -->
+        <div class="form-section">
+            <div class="form-content">
+                <!-- 围栏名称 -->
+                <div class="form-group">
+                    <label class="form-label">围栏名称</label>
+                    <input type="text" placeholder="输入围栏名称" class="input-field" />
+                </div>
+
+                <!-- 设置围栏半径 -->
+                <div class="form-group">
+                    <div class="slider-header">
+                        <label class="form-label">设置围栏半径</label>
+                        <span class="radius-value" id="radiusValue">0m</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-track" id="sliderTrack" style="width: 0%"></div>
+                        <input type="range" min="0" max="2000" value="0" class="slider" id="radiusSlider" oninput="updateRadius(this.value)">
+                    </div>
+                </div>
+
+                <!-- 关联宠物 -->
+                <div class="form-group">
+                    <label class="form-label">关联宠物</label>
+                    <div class="pet-section">
+                        <div class="pet-info">
+                            <div class="pet-avatar">
+                                <i class="fas fa-dog text-white text-sm"></i>
+                            </div>
+                            <span class="pet-name">多大</span>
+                        </div>
+                        <button class="change-button" onclick="changePet()">
+                            更改
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <button class="save-button" onclick="saveSafeZone()">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let safeZoneCircle;
+        let petMarker;
+        
+        // 当前位置（宁波东钱湖）
+        const currentLocation = [121.627856, 29.873388];
+        let currentRadius = 0;
+
+        // 初始化高德地图
+        function initMap() {
+            try {
+                map = new AMap.Map('amap-container', {
+                    center: currentLocation,
+                    zoom: 14,
+                    mapStyle: 'amap://styles/normal',
+                    showLabel: true,
+                    scrollWheel: true,
+                    touchZoom: true,
+                    doubleClickZoom: true,
+                    keyboardEnable: true,
+                    dragEnable: true,
+                    zoomEnable: true,
+                    rotateEnable: true,
+                    animateEnable: true,
+                    jogEnable: true,
+                    pitchEnable: false,
+                    buildingAnimation: true,
+                    features: ['bg', 'road', 'building', 'point']
+                });
+
+                // 添加宠物位置标记
+                addPetMarker();
+
+                // 地图加载完成回调
+                map.on('complete', function() {
+                    console.log('创建安全范围地图加载完成');
+                });
+
+            } catch (error) {
+                console.error('高德地图初始化失败:', error);
+                document.getElementById('amap-container').innerHTML = `
+                    <div style="
+                        width: 100%; 
+                        height: 100%; 
+                        background: #f8f9fa;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #6c757d;
+                        font-size: 14px;
+                    ">
+                        地图加载中...
+                    </div>
+                `;
+            }
+        }
+
+        // 添加宠物位置标记
+        function addPetMarker() {
+            if (!map) return;
+
+            petMarker = new AMap.Marker({
+                position: currentLocation,
+                title: '宠物位置',
+                content: `
+                    <div style="
+                        width: 36px; 
+                        height: 36px; 
+                        border-radius: 50%; 
+                        background: #ff6b35;
+                        border: 3px solid white;
+                        box-shadow: 0 0 16px rgba(255, 107, 53, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">
+                        <i class="fas fa-dog" style="color: white; font-size: 14px;"></i>
+                    </div>
+                `
+            });
+
+            map.add(petMarker);
+        }
+
+        // 更新半径
+        function updateRadius(value) {
+            currentRadius = parseInt(value);
+            document.getElementById('radiusValue').textContent = value + 'm';
+            
+            // 更新滑块轨道
+            const percentage = (value / 2000) * 100;
+            document.getElementById('sliderTrack').style.width = percentage + '%';
+            
+            // 移除现有的安全范围圆圈
+            if (safeZoneCircle) {
+                map.remove(safeZoneCircle);
+            }
+            
+            // 如果半径大于0，创建新的安全范围圆圈
+            if (currentRadius > 0) {
+                safeZoneCircle = new AMap.Circle({
+                    center: currentLocation,
+                    radius: currentRadius,
+                    fillColor: '#00bcd4',
+                    fillOpacity: 0.15,
+                    strokeColor: '#00bcd4',
+                    strokeWeight: 2,
+                    strokeOpacity: 0.8
+                });
+                
+                map.add(safeZoneCircle);
+            }
+        }
+
+        // 选择城市
+        function selectCity() {
+            showNotification('选择城市');
+        }
+
+        // 搜索位置
+        function searchLocation() {
+            showNotification('搜索位置');
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('返回上一页');
+        }
+
+        // 删除安全范围
+        function deleteSafeZone() {
+            showNotification('删除安全范围');
+        }
+
+        // 更改宠物
+        function changePet() {
+            showNotification('更改关联宠物');
+        }
+
+        // 保存安全范围
+        function saveSafeZone() {
+            const nameInput = document.querySelector('input[placeholder="输入围栏名称"]');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                showNotification('请输入围栏名称');
+                return;
+            }
+            
+            if (currentRadius === 0) {
+                showNotification('请设置围栏半径');
+                return;
+            }
+            
+            showNotification('安全范围保存成功');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.4s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+
+        // 初始化地图
+        setTimeout(initMap, 100);
+    </script>
+</body>
+</html> 

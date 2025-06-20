@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paw Track - 选择品种</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { overflow: hidden; }
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+        
+        .breed-card {
+            transition: background-color 0.2s ease;
+        }
+        
+        .breed-card:hover {
+            background-color: #fafafa;
+        }
+        
+        .breed-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .breed-item:hover {
+            background-color: #fef3e2;
+        }
+        
+        .alphabet-letter:hover {
+            color: #f97316;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <!-- Mock up phone container -->
+    <div class="relative">
+        <!-- Phone frame -->
+        <div class="w-96 h-[820px] bg-black rounded-[3rem] p-2 shadow-2xl">
+            <!-- Screen -->
+            <div class="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+                <!-- Status bar -->
+                <div class="absolute top-0 left-0 right-0 h-12 bg-white flex justify-between items-center px-6 text-gray-900 text-sm font-medium z-20">
+                    <span>9:41</span>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-signal text-xs"></i>
+                        <i class="fas fa-wifi text-xs"></i>
+                        <i class="fas fa-battery-three-quarters text-xs"></i>
+                    </div>
+                </div>
+                
+                <!-- Header -->
+                <div class="pt-12 px-6 pb-4 bg-white border-b border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <button class="w-8 h-8 flex items-center justify-center">
+                            <i class="fas fa-chevron-left text-gray-600 text-lg"></i>
+                        </button>
+                        <h1 class="text-lg font-semibold text-gray-900">选择品种</h1>
+                        <div class="w-8 h-8"></div>
+                    </div>
+                    
+                    <!-- Search bar -->
+                    <div class="relative">
+                        <input type="text" 
+                               placeholder="搜索品种..." 
+                               class="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-orange-400">
+                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                            <i class="fas fa-search text-orange-400"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main content -->
+                <div class="bg-white h-full overflow-y-auto">
+                    <div class="flex">
+                        <!-- Breed list -->
+                        <div class="flex-1 px-6 py-4">
+                            
+                            <!-- A Section -->
+                            <div class="breed-card mb-6 border-b border-gray-100 pb-4">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-8 h-8 bg-orange-400 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-white font-semibold text-sm">A</span>
+                                    </div>
+                                    <span class="text-gray-500 text-sm">3个品种</span>
+                                </div>
+                                <div class="space-y-0">
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">阿比西尼亚猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">埃及猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">奥西猫</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- B Section -->
+                            <div class="breed-card mb-6 border-b border-gray-100 pb-4">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-8 h-8 bg-orange-400 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-white font-semibold text-sm">B</span>
+                                    </div>
+                                    <span class="text-gray-500 text-sm">7个品种</span>
+                                </div>
+                                <div class="space-y-0">
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">巴厘猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">豹猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">波斯猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">波米拉猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">波斯金吉拉</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">伯曼猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">布偶猫</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- C Section -->
+                            <div class="breed-card mb-6 border-b border-gray-100 pb-4">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-8 h-8 bg-orange-400 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-white font-semibold text-sm">C</span>
+                                    </div>
+                                    <span class="text-gray-500 text-sm">3个品种</span>
+                                </div>
+                                <div class="space-y-0">
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">彼得秃毛猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer border-b border-gray-100">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">秀兰尼猫</span>
+                                        </div>
+                                    </div>
+                                    <div class="breed-item py-3 px-2 rounded-lg cursor-pointer">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700">专家龙李猫</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <!-- Alphabet index -->
+                        <div class="w-12 py-6 flex flex-col items-center justify-start space-y-2 bg-gray-50">
+                            <div class="w-6 h-6 rounded-full bg-orange-400 flex items-center justify-center cursor-pointer">
+                                <span class="text-white text-xs font-semibold">A</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">B</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">C</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">D</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">E</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">F</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">G</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">H</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">I</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">J</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">K</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">L</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">M</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">N</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">O</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">P</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">Q</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">R</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">S</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">T</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">U</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">V</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">W</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">X</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">Y</span>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span class="text-gray-500 text-xs font-medium">Z</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

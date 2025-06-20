@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物追踪系统 - UI展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #f6f6f6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .header .stats {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e5e9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .iframe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            justify-items: center;
+        }
+        
+        .iframe-container {
+            background-color: #f6f6f6;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .iframe-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .iframe-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .iframe-wrapper {
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        iframe {
+            width: 400px;
+            height: 850px;
+            border: none;
+            background-color: #f6f6f6;
+            display: block;
+        }
+        
+        .page-info {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .status-pending {
+            background: #fff2e6;
+            color: #fa8c16;
+        }
+        
+        @media (max-width: 480px) {
+            .iframe-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            iframe {
+                width: 350px;
+                height: 750px;
+            }
+            
+            .iframe-container {
+                padding: 10px;
+            }
+            
+            .header .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .flow-indicator {
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+       
+        
+        <!-- 核心功能页面 -->
+        <div class="section">
+            <h2 class="section-title">
+                <span>🚀</span>
+                <span>核心功能页面</span>
+                <span class="flow-indicator">主要功能模块</span>
+            </h2>
+            <div class="iframe-grid">
+                <!-- 宠物追踪主页 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>🏠</span>
+                        <span>宠物追踪主页</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="index-1.html" title="宠物追踪主页"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Tracker Main Page</span>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                </div>
+                
+                <!-- 设备关联页面 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>🔗</span>
+                        <span>设备关联宠物</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="device-pet-binding.html" title="设备关联宠物页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Device Pet Binding Page</span>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                </div>
+                
+                <!-- 商城页面 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>🛍️</span>
+                        <span>宠物商城</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="pet-mall.html" title="宠物商城页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Mall Page</span>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                </div>
+                
+                <!-- 消息页面 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>💬</span>
+                        <span>设备消息</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="pet-messages.html" title="设备消息页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Device Messages Page</span>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加宠物流程页面 -->
+        <div class="section">
+            <h2 class="section-title">
+                <span>➕</span>
+                <span>添加宠物流程</span>
+                <span class="flow-indicator">用户操作流程</span>
+            </h2>
+            <div class="iframe-grid">
+                <!-- 选择宠物类型 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>🐕</span>
+                        <span>选择宠物类型</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="添加宠物—选择类型.html" title="选择宠物类型页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Type Selection</span>
+                        <span class="status-badge status-completed">流程第1步</span>
+                    </div>
+                </div>
+                
+                <!-- 选择品种 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>📋</span>
+                        <span>选择宠物品种</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="添加宠物—选择品种.html" title="选择宠物品种页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Breed Selection</span>
+                        <span class="status-badge status-completed">流程第2步</span>
+                    </div>
+                </div>
+                
+                <!-- 基本信息 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>📝</span>
+                        <span>宠物基本信息</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="添加宠物—基本信息.html" title="宠物基本信息页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Basic Information</span>
+                        <span class="status-badge status-completed">流程第3步</span>
+                    </div>
+                </div>
+                
+                <!-- 生日选择 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>📅</span>
+                        <span>选择宠物生日</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="添加宠物—生日选择.html" title="选择宠物生日页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Pet Birthday Selection</span>
+                        <span class="status-badge status-completed">日期选择器</span>
+                    </div>
+                </div>
+                
+                <!-- 信息确认 -->
+                <div class="iframe-container">
+                    <div class="iframe-title">
+                        <span>✅</span>
+                        <span>信息确认</span>
+                    </div>
+                    <div class="iframe-wrapper">
+                        <iframe src="添加宠物—信息确认.html" title="信息确认页面"></iframe>
+                    </div>
+                    <div class="page-info">
+                        <span>Information Confirmation</span>
+                        <span class="status-badge status-completed">流程完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    
+    </div>
+</body>
+</html> 

@@ -33,20 +33,34 @@
             display: flex;
             flex-direction: column;
             background: #ffffff;
+            position: relative;
+        }
+        
+        /* 新的顶部控制栏 */
+        .top-control-bar {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            height: 120px;
+            padding: 44px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+            position: relative;
         }
         
         .status-bar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            height: 44px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
             font-size: 15px;
             font-weight: 600;
-            color: #000;
-            z-index: 100;
+            color: rgba(255, 255, 255, 0.9);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            padding: 0 20px;
         }
         
         .status-left {
@@ -61,13 +75,160 @@
             gap: 6px;
         }
         
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .date-time-control {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .date-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+        
+        .date-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .date-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .date-display {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .time-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .play-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .play-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ff6b35;
+        }
+        
+        .play-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .play-btn.playing {
+            background: #ff6b35;
+            color: white;
+        }
+        
+        .time-slider-mini {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+        
+        .time-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+            border-radius: 3px;
+            position: relative;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+        
+        .time-progress::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff6b35;
+        }
+        
+        .time-display {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            min-width: 35px;
+        }
+        
+        .top-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .top-action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+        
+        /* 地图容器 - 现在占据更多空间 */
         .map-container {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
         
-        /* 高德地图容器 */
         #amap-container {
             width: 100%;
             height: 100%;
@@ -77,277 +238,173 @@
             z-index: 1;
         }
         
-        /* 地图样式覆盖 */
         .amap-logo, .amap-copyright {
             opacity: 0.3 !important;
         }
         
-        .date-selector {
+        /* 左侧垂直控制栏 */
+        .left-controls {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            z-index: 20;
-        }
-        
-        .date-arrow {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(255, 107, 53, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-        }
-        
-        .date-arrow:hover {
-            background: rgba(255, 107, 53, 0.2);
-            transform: scale(1.1);
-        }
-        
-        .date-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: #ff6b35;
-            min-width: 100px;
-            text-align: center;
-        }
-        
-        .time-control {
-            position: absolute;
-            top: 70px;
-            left: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            z-index: 20;
-        }
-        
-        .time-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .time-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-        }
-        
-        .time-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #ff6b35;
-        }
-        
-        .time-slider-container {
-            position: relative;
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-        }
-        
-        .time-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: transparent;
-            outline: none;
-            position: absolute;
-            top: 0;
-        }
-        
-        .time-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #ff6b35;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .time-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-        }
-        
-        .time-track {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        
-        .right-controls {
-            position: absolute;
-            right: 16px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            z-index: 20;
-        }
-        
-        .control-button {
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-        }
-        
-        .control-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        }
-        
-        .bottom-actions {
-            position: absolute;
-            bottom: 180px;
-            left: 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
             z-index: 20;
         }
         
-        .action-button {
+        .left-control-item {
+            width: 40px;
+            height: 40px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 8px 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #333;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transition: all 0.3s ease;
-            white-space: nowrap;
             border: none;
+            flex-direction: column;
+            gap: 2px;
         }
         
-        .action-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        .left-control-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
-        .action-button.active {
+        .left-control-item.active {
             background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             color: white;
         }
         
-        .action-button i {
-            font-size: 10px;
+        .left-control-item i {
+            font-size: 12px;
         }
         
-        .pet-stats-card {
+        .left-control-item span {
+            font-size: 8px;
+            font-weight: 500;
+        }
+        
+        /* 右上角快捷按钮 */
+        .quick-actions {
             position: absolute;
-            bottom: 80px;
-            left: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.98);
+            right: 16px;
+            top: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 20;
+        }
+        
+        .quick-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            z-index: 30;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 16px;
-            animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
         }
         
-        .pet-stats-avatar {
-            width: 48px;
-            height: 48px;
+        .quick-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 底部集成面板 */
+        .bottom-panel {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 16px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 50;
+        }
+        
+        .pet-info-compact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 107, 53, 0.05);
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+        }
+        
+        .pet-avatar-small {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
             flex-shrink: 0;
         }
         
-        .pet-stats-content {
+        .pet-info-content {
             flex: 1;
-        }
-        
-        .pet-stats-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
         }
         
-        .pet-name {
-            font-size: 14px;
+        .pet-basic-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .pet-name-small {
+            font-size: 13px;
             font-weight: 600;
             color: #1a1a1a;
         }
         
-        .battery-info {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
+        .pet-steps {
+            font-size: 11px;
             color: #666;
         }
         
-        .battery-icon {
-            width: 16px;
-            height: 10px;
+        .pet-battery {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .battery-mini {
+            width: 12px;
+            height: 8px;
             border: 1px solid #ddd;
-            border-radius: 2px;
+            border-radius: 1px;
             position: relative;
         }
         
-        .battery-icon::after {
+        .battery-mini::after {
             content: '';
             position: absolute;
-            right: -3px;
+            right: -2px;
             top: 2px;
-            width: 2px;
-            height: 6px;
+            width: 1px;
+            height: 4px;
             background: #ddd;
             border-radius: 0 1px 1px 0;
         }
         
-        .battery-level {
+        .battery-fill {
             position: absolute;
             left: 0;
             top: 0;
@@ -357,21 +414,9 @@
             transition: width 0.3s ease;
         }
         
-        .activity-stats {
-            font-size: 13px;
-            color: #666;
-        }
-        
-        .steps-count {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-right: 4px;
-        }
-        
-        .sync-button {
-            width: 36px;
-            height: 36px;
+        .sync-btn-small {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: rgba(52, 199, 89, 0.1);
             display: flex;
@@ -380,10 +425,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
-            flex-shrink: 0;
         }
         
-        .sync-button:hover {
+        .sync-btn-small:hover {
             background: rgba(52, 199, 89, 0.2);
             transform: rotate(90deg);
         }
@@ -443,17 +487,92 @@
             transform: scale(1.05);
         }
         
+        /* 增强轨迹播放视觉效果 */
         .track-path {
-            stroke: #dc2626;
-            stroke-width: 3;
+            stroke: #ff6b35;
+            stroke-width: 4;
             fill: none;
-            stroke-dasharray: 8, 5;
-            animation: dashMove 3s linear infinite;
+            stroke-dasharray: 10, 5;
+            animation: dashMove 2s linear infinite;
+            opacity: 0.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .track-path-shadow {
+            stroke: rgba(255, 107, 53, 0.3);
+            stroke-width: 8;
+            fill: none;
+            opacity: 0.6;
+        }
+        
+        .track-progress-path {
+            stroke: #dc2626;
+            stroke-width: 5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 1;
         }
         
         @keyframes dashMove {
             0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: -13; }
+            100% { stroke-dashoffset: -15; }
+        }
+        
+        /* 轨迹点样式 */
+        .track-point {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid #ff6b35;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 10;
+            animation: track-point-pulse 2s ease-in-out infinite;
+        }
+        
+        .track-point.active {
+            background: #ff6b35;
+            border-color: #fff;
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+            animation: track-point-active 1s ease-in-out infinite;
+        }
+        
+        @keyframes track-point-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        @keyframes track-point-active {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        /* 轨迹信息提示 */
+        .track-info {
+            position: absolute;
+            right: 16px;
+            bottom: 120px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #333;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .track-info.show {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         @keyframes slideUp {
@@ -466,126 +585,145 @@
                 transform: translateY(0);
             }
         }
+        
+        @keyframes pet-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <div class="pet-tracker-container">
-        <!-- 状态栏 -->
-        <div class="status-bar">
-            <div class="status-left">
-                <span>9:41</span>
+        <!-- 新的顶部控制栏 -->
+        <div class="top-control-bar">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span>9:41</span>
+                </div>
+                <div class="status-right">
+                    <div class="flex items-center gap-1">
+                        <div class="w-1 h-1 bg-white rounded-full opacity-80"></div>
+                        <div class="w-1 h-1 bg-white rounded-full opacity-80"></div>
+                        <div class="w-1 h-1 bg-white rounded-full opacity-80"></div>
+                        <div class="w-1 h-1 bg-white rounded-full opacity-40"></div>
+                    </div>
+                    <i class="fas fa-wifi text-sm opacity-80"></i>
+                    <div class="w-6 h-3 border border-white rounded-sm relative opacity-80">
+                        <div class="absolute right-0 top-0 w-4 h-full bg-white rounded-sm"></div>
+                    </div>
+                </div>
             </div>
-            <div class="status-right">
-                <div class="flex items-center gap-1">
-                    <div class="w-1 h-1 bg-black rounded-full"></div>
-                    <div class="w-1 h-1 bg-black rounded-full"></div>
-                    <div class="w-1 h-1 bg-black rounded-full"></div>
-                    <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            
+            <!-- 集成的日期时间控制 -->
+            <div class="control-row">
+                <div class="date-time-control">
+                    <div class="date-section">
+                        <button class="date-btn" onclick="changeDate(-1)">
+                            <i class="fas fa-chevron-left text-white text-xs"></i>
+                        </button>
+                        <span class="date-display" id="currentDate">05-16</span>
+                        <button class="date-btn" onclick="changeDate(1)">
+                            <i class="fas fa-chevron-right text-white text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="text-white opacity-60">|</div>
+                    <div class="time-section">
+                        <div class="play-controls">
+                            <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                                <i class="fas fa-play text-xs"></i>
+                            </button>
+                        </div>
+                        <span class="time-display" id="currentTime">12:43</span>
+                        <div class="time-slider-mini" onclick="handleTimeClick(event)">
+                            <div class="time-progress" id="timeProgress" style="width: 53%"></div>
+                        </div>
+                    </div>
                 </div>
-                <i class="fas fa-wifi text-sm"></i>
-                <div class="w-6 h-3 border border-black rounded-sm relative">
-                    <div class="absolute right-0 top-0 w-4 h-full bg-black rounded-sm"></div>
-                </div>
+                <button class="top-action-btn" onclick="centerLocation()">
+                    <i class="fas fa-crosshairs text-white text-sm"></i>
+                </button>
+                <button class="top-action-btn" onclick="refreshTrack()">
+                    <i class="fas fa-sync text-white text-sm"></i>
+                </button>
             </div>
         </div>
 
-        <!-- 地图主界面 -->
+        <!-- 地图主界面 - 现在占据更多空间 -->
         <div class="map-container">
             <!-- 高德地图容器 -->
             <div id="amap-container"></div>
             
-            <!-- 日期选择器 -->
-            <div class="date-selector">
-                <button class="date-arrow" onclick="changeDate(-1)">
-                    <i class="fas fa-chevron-left text-orange-500 text-xs"></i>
-                </button>
-                <span class="date-text" id="currentDate">2024-05-16</span>
-                <button class="date-arrow" onclick="changeDate(1)">
-                    <i class="fas fa-chevron-right text-orange-500 text-xs"></i>
-                </button>
-            </div>
-            
-            <!-- 时间控制器 -->
-            <div class="time-control">
-                <div class="time-header">
-                    <span class="time-label">时间</span>
-                    <span class="time-value" id="currentTime">12:43</span>
-                </div>
-                <div class="time-slider-container">
-                    <div class="time-track" id="timeTrack" style="width: 53%"></div>
-                    <input type="range" min="0" max="1440" value="763" class="time-slider" id="timeSlider" oninput="updateTime(this.value)">
-                </div>
-            </div>
-            
-            <!-- 右侧控制按钮 -->
-            <div class="right-controls">
-                <button class="control-button" onclick="centerLocation()">
-                    <i class="fas fa-crosshairs text-gray-600 text-lg"></i>
-                </button>
-                <button class="control-button" onclick="refreshTrack()">
-                    <i class="fas fa-sync text-gray-600 text-lg"></i>
-                </button>
-                <button class="control-button" onclick="showDevice()">
-                    <i class="fas fa-mobile-alt text-gray-600 text-lg"></i>
-                </button>
-            </div>
-            
-            <!-- 底部操作按钮 -->
-            <div class="bottom-actions">
-                <button class="action-button" onclick="petSocial()">
+            <!-- 左侧垂直控制栏 -->
+            <div class="left-controls">
+                <button class="left-control-item" onclick="petSocial()">
                     <i class="fas fa-heart text-gray-500"></i>
-                    <span>宠物交友</span>
+                    <span>交友</span>
                 </button>
-                <button class="action-button active" onclick="activityTrack()">
-                    <i class="fas fa-route"></i>
-                    <span>活动轨迹</span>
+                <button class="left-control-item active" onclick="activityTrack()">
+                    <i class="fas fa-route text-white"></i>
+                    <span>轨迹</span>
                 </button>
-                <button class="action-button" onclick="petTravel()">
+                <button class="left-control-item" onclick="petTravel()">
                     <i class="fas fa-map-marker-alt text-gray-500"></i>
-                    <span>宠物出行</span>
+                    <span>出行</span>
                 </button>
             </div>
             
-            <!-- 宠物数据统计卡片 -->
-            <div class="pet-stats-card">
-                <div class="pet-stats-avatar">
-                    <i class="fas fa-dog text-white text-lg"></i>
+            <!-- 右上角快捷按钮 -->
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="showDevice()">
+                    <i class="fas fa-mobile-alt text-gray-600 text-xs"></i>
+                </button>
+            </div>
+            
+            <!-- 轨迹信息提示 -->
+            <div class="track-info" id="trackInfo">
+                <div>轨迹播放中...</div>
+                <div>速度: <span id="trackSpeed">1x</span></div>
+            </div>
+        </div>
+        
+        <!-- 底部集成面板 -->
+        <div class="bottom-panel">
+            <!-- 紧凑的宠物信息 -->
+            <div class="pet-info-compact">
+                <div class="pet-avatar-small">
+                    <i class="fas fa-dog text-white text-sm"></i>
                 </div>
-                <div class="pet-stats-content">
-                    <div class="pet-stats-header">
-                        <span class="pet-name">糯糯</span>
-                        <div class="battery-info">
-                            <div class="battery-icon">
-                                <div class="battery-level" style="width: 20%"></div>
-                            </div>
-                            <span>20%</span>
+                <div class="pet-info-content">
+                    <div class="pet-basic-info">
+                        <div class="pet-name-small">糯糯</div>
+                        <div class="pet-steps">今日 <strong>2705</strong> Steps</div>
+                    </div>
+                    <div class="pet-battery">
+                        <div class="battery-mini">
+                            <div class="battery-fill" style="width: 20%"></div>
                         </div>
+                        <span>20%</span>
                     </div>
-                    <div class="activity-stats">
-                        今日运动数据：<span class="steps-count">2705</span>Steps
-                    </div>
+                    <button class="sync-btn-small" onclick="syncData()">
+                        <i class="fas fa-sync-alt text-green-500 text-xs"></i>
+                    </button>
                 </div>
-                <button class="sync-button" onclick="syncData()">
-                    <i class="fas fa-sync-alt text-green-500"></i>
-                </button>
             </div>
-            
-            <!-- 底部导航栏 -->
-            <div class="bottom-nav">
-                <div class="nav-items">
-                    <button class="nav-item" onclick="goHome()">
-                        <i class="fas fa-home text-base"></i>
-                    </button>
-                    <button class="nav-item" onclick="showHistory()">
-                        <i class="fas fa-list text-base"></i>
-                    </button>
-                    <button class="nav-item active" onclick="showMap()">
-                        <i class="fas fa-location-dot text-lg"></i>
-                    </button>
-                    <button class="nav-item" onclick="showProfile()">
-                        <i class="fas fa-user text-base"></i>
-                    </button>
-                </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <button class="nav-item" onclick="goHome()">
+                    <i class="fas fa-home text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-list text-base"></i>
+                </button>
+                <button class="nav-item active" onclick="showMap()">
+                    <i class="fas fa-location-dot text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showProfile()">
+                    <i class="fas fa-user text-lg"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -593,19 +731,24 @@
     <script>
         let map;
         let trackPolyline;
+        let trackProgressPolyline;
         let startMarker;
         let endMarker;
         let zooMarker;
         let currentTimeMarker;
+        let currentTimeValue = 763;
+        let isPlaying = false;
+        let playInterval;
+        let playSpeed = 1;
         
         // 轨迹数据点
         const trackData = [
-            { position: [121.625856, 29.870388], time: '09:30' },
-            { position: [121.627856, 29.872388], time: '10:15' },
-            { position: [121.630856, 29.874388], time: '11:00' },
-            { position: [121.633856, 29.876388], time: '11:45' },
-            { position: [121.635856, 29.878388], time: '12:30' },
-            { position: [121.637856, 29.880388], time: '12:43' }
+            { position: [121.625856, 29.870388], time: '09:30', timestamp: 570 },
+            { position: [121.627856, 29.872388], time: '10:15', timestamp: 615 },
+            { position: [121.630856, 29.874388], time: '11:00', timestamp: 660 },
+            { position: [121.633856, 29.876388], time: '11:45', timestamp: 705 },
+            { position: [121.635856, 29.878388], time: '12:30', timestamp: 750 },
+            { position: [121.637856, 29.880388], time: '12:43', timestamp: 763 }
         ];
         
         const zooLocation = [121.645856, 29.883388];
@@ -616,7 +759,7 @@
             try {
                 map = new AMap.Map('amap-container', {
                     center: [121.631856, 29.875388],
-                    zoom: 14,
+                    zoom: 15,
                     mapStyle: 'amap://styles/normal',
                     showLabel: true,
                     scrollWheel: true,
@@ -664,14 +807,25 @@
         function addTrackAndMarkers() {
             if (!map) return;
 
-            // 创建轨迹线
+            // 创建完整轨迹线（背景）
             const trackPath = trackData.map(point => point.position);
             trackPolyline = new AMap.Polyline({
                 path: trackPath,
-                strokeColor: '#dc2626',
-                strokeWeight: 3,
-                strokeStyle: 'dashed',
-                strokeOpacity: 0.8,
+                strokeColor: 'rgba(255, 107, 53, 0.3)',
+                strokeWeight: 6,
+                strokeStyle: 'solid',
+                strokeOpacity: 0.4,
+                lineJoin: 'round',
+                lineCap: 'round'
+            });
+
+            // 创建进度轨迹线（前景）
+            trackProgressPolyline = new AMap.Polyline({
+                path: [trackData[0].position],
+                strokeColor: '#ff6b35',
+                strokeWeight: 4,
+                strokeStyle: 'solid',
+                strokeOpacity: 1,
                 lineJoin: 'round',
                 lineCap: 'round'
             });
@@ -682,53 +836,46 @@
                 title: '起点',
                 content: `
                     <div style="
-                        width: 48px; 
-                        height: 48px; 
+                        width: 16px; 
+                        height: 16px; 
                         border-radius: 50%; 
                         background: #00bcd4;
                         border: 3px solid white;
-                        box-shadow: 0 0 16px rgba(0, 188, 212, 0.5);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        position: relative;
-                    ">
-                        <i class="fas fa-dog" style="color: white; font-size: 18px;"></i>
-                        <div style="
-                            position: absolute;
-                            bottom: -25px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            background: rgba(0, 188, 212, 0.9);
-                            color: white;
-                            padding: 2px 8px;
-                            border-radius: 10px;
-                            font-size: 10px;
-                            font-weight: 500;
-                            white-space: nowrap;
-                        ">12:43</div>
-                    </div>
+                        box-shadow: 0 0 12px rgba(0, 188, 212, 0.6);
+                        animation: track-point-pulse 2s ease-in-out infinite;
+                    "></div>
                 `
             });
 
-            // 终点标记
+            // 当前位置标记（动态）
             endMarker = new AMap.Marker({
                 position: trackData[trackData.length - 1].position,
                 title: '当前位置',
                 content: `
                     <div style="
-                        width: 48px; 
-                        height: 48px; 
+                        width: 20px; 
+                        height: 20px; 
                         border-radius: 50%; 
                         background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
                         border: 3px solid white;
-                        box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+                        box-shadow: 0 0 16px rgba(255, 107, 53, 0.8);
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        animation: pet-pulse 2s ease-in-out infinite;
+                        animation: pet-pulse 1.5s ease-in-out infinite;
+                        position: relative;
                     ">
-                        <i class="fas fa-dog" style="color: white; font-size: 18px;"></i>
+                        <i class="fas fa-dog" style="color: white; font-size: 8px;"></i>
+                        <div style="
+                            position: absolute;
+                            top: -8px;
+                            left: -8px;
+                            width: 32px;
+                            height: 32px;
+                            border: 2px solid rgba(255, 107, 53, 0.3);
+                            border-radius: 50%;
+                            animation: ripple 2s ease-out infinite;
+                        "></div>
                     </div>
                 `
             });
@@ -757,8 +904,123 @@
                 `
             });
 
+            // 添加轨迹点标记
+            trackData.forEach((point, index) => {
+                if (index > 0 && index < trackData.length - 1) {
+                    const pointMarker = new AMap.Marker({
+                        position: point.position,
+                        title: `轨迹点 ${index}`,
+                        content: `
+                            <div class="track-point" data-index="${index}">
+                                <div style="
+                                    position: absolute;
+                                    bottom: 15px;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    background: rgba(255, 107, 53, 0.9);
+                                    color: white;
+                                    padding: 2px 6px;
+                                    border-radius: 8px;
+                                    font-size: 9px;
+                                    font-weight: 500;
+                                    white-space: nowrap;
+                                ">${point.time}</div>
+                            </div>
+                        `
+                    });
+                    map.add(pointMarker);
+                }
+            });
+
             // 添加到地图
-            map.add([trackPolyline, startMarker, endMarker, zooMarker]);
+            map.add([trackPolyline, trackProgressPolyline, startMarker, endMarker, zooMarker]);
+        }
+
+        // 播放/暂停控制
+        function togglePlay() {
+            const playBtn = document.getElementById('playBtn');
+            const trackInfo = document.getElementById('trackInfo');
+            
+            if (isPlaying) {
+                // 暂停播放
+                isPlaying = false;
+                clearInterval(playInterval);
+                playBtn.innerHTML = '<i class="fas fa-play text-xs"></i>';
+                playBtn.classList.remove('playing');
+                trackInfo.classList.remove('show');
+                showNotification('⏸️ 轨迹播放已暂停');
+            } else {
+                // 开始播放
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause text-xs"></i>';
+                playBtn.classList.add('playing');
+                trackInfo.classList.add('show');
+                startAutoPlay();
+                showNotification('▶️ 开始播放轨迹');
+            }
+        }
+
+        // 自动播放轨迹
+        function startAutoPlay() {
+            const startTime = 570; // 09:30
+            const endTime = 763; // 12:43
+            let currentTime = Math.max(currentTimeValue, startTime);
+            
+            playInterval = setInterval(() => {
+                if (currentTime >= endTime) {
+                    // 播放完成，重新开始
+                    currentTime = startTime;
+                    showNotification('🔄 轨迹播放完成，重新开始');
+                }
+                
+                currentTime += playSpeed;
+                currentTimeValue = currentTime;
+                updateTime(currentTime);
+                updateTrackProgress(currentTime);
+                
+            }, 100); // 100ms间隔
+        }
+
+        // 更新轨迹播放进度
+        function updateTrackProgress(timeValue) {
+            if (!trackProgressPolyline) return;
+            
+            // 计算当前应该显示到哪个轨迹点
+            let currentIndex = 0;
+            for (let i = 0; i < trackData.length; i++) {
+                if (timeValue >= trackData[i].timestamp) {
+                    currentIndex = i;
+                } else {
+                    break;
+                }
+            }
+            
+            // 更新进度轨迹线
+            const progressPath = trackData.slice(0, currentIndex + 1).map(point => point.position);
+            if (progressPath.length > 1) {
+                trackProgressPolyline.setPath(progressPath);
+            }
+            
+            // 更新轨迹点状态
+            document.querySelectorAll('.track-point').forEach((point, index) => {
+                if (index + 1 <= currentIndex) {
+                    point.classList.add('active');
+                } else {
+                    point.classList.remove('active');
+                }
+            });
+        }
+
+        // 处理时间点击
+        function handleTimeClick(event) {
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = x / rect.width;
+            const newTimeValue = Math.round(570 + percentage * (763 - 570)); // 限制在轨迹时间范围内
+            
+            currentTimeValue = newTimeValue;
+            updateTime(newTimeValue);
+            updateTrackProgress(newTimeValue);
         }
 
         // 更新时间
@@ -769,23 +1031,34 @@
             
             document.getElementById('currentTime').textContent = timeStr;
             
-            // 更新时间轨道
-            const percentage = (value / 1440) * 100;
-            document.getElementById('timeTrack').style.width = percentage + '%';
+            // 更新时间进度条
+            const percentage = ((value - 570) / (763 - 570)) * 100;
+            document.getElementById('timeProgress').style.width = Math.max(0, Math.min(100, percentage)) + '%';
             
-            // 更新宠物在轨迹上的位置（模拟）
+            // 更新宠物位置
             updatePetPosition(value);
         }
 
         // 更新宠物位置
         function updatePetPosition(timeValue) {
             // 根据时间计算宠物在轨迹上的位置
-            const progress = timeValue / 1440; // 一天的进度
-            const trackIndex = Math.floor(progress * (trackData.length - 1));
-            const currentPos = trackData[Math.min(trackIndex, trackData.length - 1)];
+            let currentPos = trackData[0].position;
+            
+            for (let i = 0; i < trackData.length - 1; i++) {
+                if (timeValue >= trackData[i].timestamp && timeValue <= trackData[i + 1].timestamp) {
+                    // 在两个轨迹点之间，进行插值
+                    const progress = (timeValue - trackData[i].timestamp) / (trackData[i + 1].timestamp - trackData[i].timestamp);
+                    const lat = trackData[i].position[1] + (trackData[i + 1].position[1] - trackData[i].position[1]) * progress;
+                    const lng = trackData[i].position[0] + (trackData[i + 1].position[0] - trackData[i].position[0]) * progress;
+                    currentPos = [lng, lat];
+                    break;
+                } else if (timeValue >= trackData[i].timestamp) {
+                    currentPos = trackData[i].position;
+                }
+            }
             
             if (endMarker && currentPos) {
-                endMarker.setPosition(currentPos.position);
+                endMarker.setPosition(currentPos);
             }
         }
 
@@ -795,7 +1068,7 @@
             newDate.setDate(newDate.getDate() + direction);
             currentDate = newDate;
             
-            const dateStr = currentDate.toISOString().slice(0, 10);
+            const dateStr = `${(newDate.getMonth() + 1).toString().padStart(2, '0')}-${newDate.getDate().toString().padStart(2, '0')}`;
             document.getElementById('currentDate').textContent = dateStr;
             
             showNotification(`切换到 ${dateStr}`);
@@ -821,7 +1094,7 @@
 
         // 同步数据
         function syncData() {
-            const button = event.target.closest('.sync-button');
+            const button = event.target.closest('.sync-btn-small');
             button.style.transform = 'rotate(360deg)';
             setTimeout(() => {
                 button.style.transform = 'rotate(0deg)';
@@ -832,8 +1105,7 @@
 
         // 宠物交友
         function petSocial() {
-            // 更新按钮状态
-            updateActionButtons('social');
+            updateLeftControls('social');
             showNotification('💕 宠物交友');
         }
 
@@ -844,21 +1116,21 @@
 
         // 宠物出行
         function petTravel() {
-            // 更新按钮状态
-            updateActionButtons('travel');
+            updateLeftControls('travel');
             showNotification('🚗 宠物出行');
         }
 
-        // 更新操作按钮状态
-        function updateActionButtons(activeType) {
-            const buttons = document.querySelectorAll('.action-button');
+        // 更新左侧控制按钮状态
+        function updateLeftControls(activeType) {
+            const buttons = document.querySelectorAll('.left-control-item');
             buttons.forEach(button => {
                 button.classList.remove('active');
-                if (activeType === 'social' && button.textContent.includes('宠物交友')) {
+                const text = button.textContent;
+                if (activeType === 'social' && text.includes('交友')) {
                     button.classList.add('active');
-                } else if (activeType === 'activity' && button.textContent.includes('活动轨迹')) {
+                } else if (activeType === 'activity' && text.includes('轨迹')) {
                     button.classList.add('active');
-                } else if (activeType === 'travel' && button.textContent.includes('宠物出行')) {
+                } else if (activeType === 'travel' && text.includes('出行')) {
                     button.classList.add('active');
                 }
             });
@@ -914,9 +1186,9 @@
                 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
                 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
             }
-            @keyframes pet-pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
+            @keyframes ripple {
+                0% { transform: scale(1); opacity: 1; }
+                100% { transform: scale(2); opacity: 0; }
             }
         `;
         document.head.appendChild(style);

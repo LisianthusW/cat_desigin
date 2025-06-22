@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI宠物医生 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            position: relative;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            z-index: 100;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .top-header {
+            background: #ffffff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .ai-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+        
+        .ai-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .header-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            position: relative;
+            /* 为底部导航栏预留空间 */
+            padding-bottom: 80px;
+        }
+        
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            /* 为输入区域预留空间 */
+            padding-bottom: 100px;
+        }
+        
+        .welcome-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px;
+            min-height: 300px;
+        }
+        
+        .welcome-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.25);
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            line-height: 1.5;
+            max-width: 280px;
+            margin-bottom: 32px;
+        }
+        
+        .example-prompts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 320px;
+        }
+        
+        .example-prompt {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .example-prompt:hover {
+            background: #f3f4f6;
+            border-color: #ff6b35;
+            transform: translateY(-1px);
+        }
+        
+        .example-prompt::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            width: 6px;
+            height: 6px;
+            background: #ff6b35;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .example-text {
+            font-size: 14px;
+            color: #374151;
+            margin-left: 18px;
+            line-height: 1.4;
+        }
+        
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.user {
+            align-items: flex-end;
+        }
+        
+        .message.assistant {
+            align-items: flex-start;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        .message.user .message-header {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+        
+        .message-avatar.user {
+            background: #374151;
+            color: white;
+        }
+        
+        .message-avatar.assistant {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 85%;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        
+        .message-bubble.user {
+            background: #ff6b35;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-bubble.assistant {
+            background: #f9fafb;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+        
+        .message.user .message-actions {
+            justify-content: flex-end;
+        }
+        
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .action-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .thinking-indicator {
+            display: none;
+            margin-bottom: 24px;
+            align-items: flex-start;
+        }
+        
+        .thinking-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            padding: 12px 16px;
+            max-width: 85%;
+        }
+        
+        .thinking-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .thinking-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ff6b35;
+            animation: thinking 1.4s ease-in-out infinite;
+        }
+        
+        .thinking-dot:nth-child(1) { animation-delay: 0ms; }
+        .thinking-dot:nth-child(2) { animation-delay: 200ms; }
+        .thinking-dot:nth-child(3) { animation-delay: 400ms; }
+        
+        @keyframes thinking {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+        
+        .input-section {
+            position: absolute;
+            bottom: 80px; /* 为底部导航栏留出空间 */
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 16px;
+            z-index: 40;
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 8px 8px 8px 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .input-container:focus-within {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .message-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+            max-height: 120px;
+            min-height: 24px;
+            resize: none;
+            padding: 8px 0;
+        }
+        
+        .message-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .attach-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            color: #6b7280;
+        }
+        
+        .attach-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ff6b35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            color: white;
+        }
+        
+        .send-btn:hover {
+            background: #e55a2b;
+        }
+        
+        .send-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            z-index: 60; /* 确保在输入框之上 */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+        }
+        
+        .nav-items {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .nav-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .nav-item:not(.active) {
+            color: #999;
+            background: transparent;
+        }
+        
+        .nav-item:not(.active):hover {
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 代码块样式 */
+        .message-content pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+        
+        .message-content code {
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        
+        /* 列表样式 */
+        .message-content ul, .message-content ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .message-content li {
+            margin: 4px 0;
+        }
+        
+        /* 强调文本样式 */
+        .message-content strong {
+            font-weight: 600;
+            color: #ff6b35;
+        }
+        
+        .message-content em {
+            font-style: italic;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>9:41</span>
+            </div>
+            <div class="status-right">
+                <div class="flex items-center gap-1">
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+                <i class="fas fa-wifi text-sm"></i>
+                <div class="w-6 h-3 border border-black rounded-sm relative">
+                    <div class="absolute right-0 top-0 w-4 h-full bg-black rounded-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 顶部头部 -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-chevron-left text-gray-600 text-sm"></i>
+                </button>
+                <div class="ai-info">
+                    <div class="ai-avatar">
+                        <i class="fas fa-stethoscope text-white text-sm"></i>
+                    </div>
+                    <div class="ai-title">AI宠物医生</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" onclick="newChat()">
+                    <i class="fas fa-plus text-gray-600 text-sm"></i>
+                </button>
+                <button class="header-btn" onclick="showMenu()">
+                    <i class="fas fa-ellipsis-v text-gray-600 text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 聊天容器 -->
+        <div class="chat-container">
+            <!-- 消息区域 -->
+            <div class="messages-area" id="messagesArea">
+                <!-- 欢迎界面 -->
+                <div class="welcome-section" id="welcomeSection">
+                    <div class="welcome-avatar">
+                        <i class="fas fa-stethoscope text-white text-xl"></i>
+                    </div>
+                    <h1 class="welcome-title">您好，我是AI宠物医生</h1>
+                    <p class="welcome-subtitle">我可以为您提供专业的宠物健康咨询、疾病预防建议和紧急处理指导</p>
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="sendExample('我的狗狗最近食欲不振，精神也不太好，这是什么原因？')">
+                            <div class="example-text">我的狗狗最近食欲不振，精神也不太好，这是什么原因？</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('猫咪频繁呕吐，但还能正常吃喝，需要就医吗？')">
+                            <div class="example-text">猫咪频繁呕吐，但还能正常吃喝，需要就医吗？</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('幼犬疫苗接种的完整时间表和注意事项')">
+                            <div class="example-text">幼犬疫苗接种的完整时间表和注意事项</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('如何判断宠物是否需要紧急就医？')">
+                            <div class="example-text">如何判断宠物是否需要紧急就医？</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 思考指示器 -->
+                <div class="thinking-indicator" id="thinkingIndicator">
+                    <div class="message-header">
+                        <div class="message-avatar assistant">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <span>AI医生</span>
+                    </div>
+                    <div class="thinking-content">
+                        <span style="color: #6b7280; font-size: 14px;">正在分析中</span>
+                        <div class="thinking-dots">
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-section">
+                <div class="input-container">
+                    <textarea 
+                        id="messageInput" 
+                        class="message-input" 
+                        placeholder="描述您宠物的症状或问题..."
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="adjustTextarea()"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="attach-btn" onclick="attachFile()">
+                            <i class="fas fa-paperclip text-sm"></i>
+                        </button>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <!-- <div class="bottom-nav">
+            <div class="nav-items">
+                <button class="nav-item" onclick="goHome()">
+                    <i class="fas fa-home text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-list text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showMap()">
+                    <i class="fas fa-location-dot text-base"></i>
+                </button>
+                <button class="nav-item active" onclick="showProfile()">
+                    <i class="fas fa-user text-lg"></i>
+                </button>
+            </div>
+        </div> -->
+    </div>
+
+    <script>
+        let conversationStarted = false;
+        
+        // 专业医疗回复数据库
+        const medicalDatabase = {
+            '食欲不振': {
+                response: `## 宠物食欲不振的分析
+
+**可能原因：**
+• **环境因素** - 天气变化、搬家、新环境适应
+• **食物问题** - 食物变质、口味变化、食盆不洁
+• **健康问题** - 口腔疾病、肠胃炎、内脏疾病
+• **心理因素** - 焦虑、抑郁、与主人分离
+
+**观察要点：**
+1. 精神状态是否正常
+2. 是否伴有呕吐、腹泻
+3. 体温是否正常（鼻头湿润度）
+4. 饮水量是否正常
+
+**建议处理：**
+- 先检查食物新鲜度，更换干净食盆
+- 尝试手喂或换不同口味食物
+- 如超过24小时不进食，**建议立即就医**
+- 观察其他症状并记录
+
+**紧急就医指征：**
+⚠️ 精神萎靡、持续呕吐、发热、腹泻带血`,
+                severity: 'medium'
+            },
+            '呕吐': {
+                response: `## 宠物呕吐问题分析
+
+**呕吐类型判断：**
+• **生理性呕吐** - 吃得过快、毛球症（猫）
+• **病理性呕吐** - 肠胃炎、异物阻塞、中毒
+
+**关键观察点：**
+1. **呕吐频率** - 偶发 vs 频繁
+2. **呕吐物性状** - 食物 vs 胆汁 vs 血丝
+3. **伴随症状** - 腹泻、发热、精神状态
+4. **进食饮水** - 是否正常
+
+**处理建议：**
+- **轻微呕吐**：禁食4-6小时，少量多次给水
+- **频繁呕吐**：立即停止进食进水，尽快就医
+- 记录呕吐时间、次数、性状
+
+**立即就医指征：**
+🚨 呕吐物带血、连续呕吐超过6小时、精神极度萎靡、疑似中毒
+
+即使能正常吃喝，如果呕吐频繁（1天超过3次），建议当天就医检查。`,
+                severity: 'high'
+            },
+            '疫苗': {
+                response: `## 宠物疫苗接种完整指南
+
+### 🐕 犬类疫苗时间表
+**幼犬免疫程序（首次接种）：**
+- **6-8周**：第一针多联疫苗
+- **10-12周**：第二针多联疫苗  
+- **14-16周**：第三针多联疫苗 + 狂犬疫苗
+- **成犬后**：每年加强免疫一次
+
+**核心疫苗包含：**
+- 犬瘟热、细小病毒、腺病毒、副流感
+
+### 🐱 猫类疫苗时间表  
+**幼猫免疫程序：**
+- **8-10周**：第一针三联疫苗
+- **12-14周**：第二针三联疫苗 + 狂犬疫苗
+- **成猫后**：每年加强免疫
+
+### ⚠️ 注意事项
+- 接种前确保宠物健康状态良好
+- 接种后观察3天，避免洗澡和剧烈运动
+- 疫苗需在正规宠物医院接种
+- 保存好免疫证明
+
+**接种后异常反应立即就医：**
+发热、呕吐、腹泻、过敏反应`,
+                severity: 'low'
+            },
+            '紧急就医': {
+                response: `## 宠物紧急就医判断标准
+
+### 🚨 立即就医情况
+**呼吸系统：**
+- 呼吸困难、张口呼吸
+- 持续咳嗽、呼吸急促
+- 牙龈发绀（发紫）
+
+**消化系统：**
+- 剧烈呕吐、呕血
+- 血便、黑便
+- 腹部极度胀大、疼痛
+
+**神经系统：**
+- 抽搐、癫痫发作
+- 意识不清、昏迷
+- 行走不稳、瘫痪
+
+**外伤急症：**
+- 严重外伤、大量出血
+- 疑似骨折
+- 眼球受伤
+
+### ⏰ 24小时内就医
+- 持续发热（体温>40°C）
+- 24小时不进食不饮水
+- 频繁呕吐腹泻
+- 排尿困难或血尿
+- 精神极度萎靡
+
+### 📞 急救措施
+1. **保持冷静**，避免惊吓宠物
+2. **立即联系**最近的24小时动物医院
+3. **安全转运**，避免二次伤害
+4. **详细记录**症状发生时间和过程
+
+**记住：宁可错判，不可漏诊！**`,
+                severity: 'critical'
+            }
+        };
+
+        // 发送示例问题
+        function sendExample(text) {
+            hideWelcome();
+            addMessage(text, 'user');
+            
+            setTimeout(() => {
+                showThinking();
+                setTimeout(() => {
+                    hideThinking();
+                    const response = generateResponse(text);
+                    addMessage(response, 'assistant');
+                }, 2000);
+            }, 300);
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            hideWelcome();
+            addMessage(text, 'user');
+            input.value = '';
+            adjustTextarea();
+            
+            setTimeout(() => {
+                showThinking();
+                setTimeout(() => {
+                    hideThinking();
+                    const response = generateResponse(text);
+                    addMessage(response, 'assistant');
+                }, 1500 + Math.random() * 1000);
+            }, 300);
+        }
+
+        // 生成专业回复
+        function generateResponse(text) {
+            const textLower = text.toLowerCase();
+            
+            // 检查医疗数据库
+            for (const [keyword, data] of Object.entries(medicalDatabase)) {
+                if (textLower.includes(keyword.toLowerCase()) || 
+                    textLower.includes(keyword.replace(/[a-zA-Z]/g, '').toLowerCase())) {
+                    return data.response;
+                }
+            }
+            
+            // 通用专业回复
+            const generalResponses = [
+                `## 专业建议
+
+感谢您的咨询。根据您描述的情况，我建议：
+
+**立即观察：**
+• 宠物的精神状态和食欲
+• 是否有其他异常症状
+• 记录症状持续时间
+
+**日常护理：**
+• 保持环境清洁和安静
+• 确保充足的饮水
+• 避免强迫进食
+
+**就医建议：**
+如果症状持续或加重，建议您及时带宠物到正规宠物医院检查。
+
+还有其他问题需要咨询吗？`,
+
+                `## 健康评估
+
+基于您提供的信息，建议进行以下评估：
+
+**症状分析：**
+1. 观察宠物行为变化的时间和频率
+2. 记录任何异常表现
+3. 检查食欲和排泄是否正常
+
+**预防措施：**
+• 定期健康检查
+• 维持规律的作息和饮食
+• 保持适量运动
+
+**专业建议：**
+每个宠物的情况都有所不同，建议结合实际情况采取相应措施。如有疑虑，请咨询专业兽医。`
+            ];
+            
+            return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        }
+
+        // 添加消息
+        function addMessage(text, sender) {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const currentTime = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            // 处理markdown格式
+            const formattedText = formatMessage(text);
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="message-avatar ${sender}">
+                        <i class="fas ${sender === 'assistant' ? 'fa-stethoscope' : 'fa-user'}"></i>
+                    </div>
+                    <span>${sender === 'assistant' ? 'AI医生' : '您'}</span>
+                    <span style="color: #9ca3af;">${currentTime}</span>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble ${sender}">
+                        ${formattedText}
+                    </div>
+                </div>
+                <div class="message-actions">
+                    ${sender === 'assistant' ? `
+                        <button class="action-btn" onclick="copyMessage(this)" title="复制">
+                            <i class="fas fa-copy text-xs text-gray-500"></i>
+                        </button>
+                        <button class="action-btn" onclick="likeMessage(this)" title="点赞">
+                            <i class="fas fa-thumbs-up text-xs text-gray-500"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            messagesArea.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // 格式化消息（简单的markdown支持）
+        function formatMessage(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/## (.*?)$/gm, '<h3 style="font-size: 16px; font-weight: 600; margin: 12px 0 8px 0; color: #ff6b35;">$1</h3>')
+                .replace(/• (.*?)$/gm, '<li style="margin: 4px 0;">$1</li>')
+                .replace(/⚠️|🚨|⏰|📞/g, '<span style="font-size: 16px;">$&</span>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // 显示/隐藏欢迎界面
+        function hideWelcome() {
+            document.getElementById('welcomeSection').style.display = 'none';
+            conversationStarted = true;
+        }
+
+        // 显示/隐藏思考指示器
+        function showThinking() {
+            document.getElementById('thinkingIndicator').style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideThinking() {
+            document.getElementById('thinkingIndicator').style.display = 'none';
+        }
+
+        // 滚动到底部
+        function scrollToBottom() {
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // 调整输入框高度
+        function adjustTextarea() {
+            const textarea = document.getElementById('messageInput');
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // 键盘事件
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 复制消息
+        function copyMessage(button) {
+            const messageContent = button.closest('.message').querySelector('.message-bubble').innerText;
+            navigator.clipboard.writeText(messageContent).then(() => {
+                showNotification('📋 已复制到剪贴板');
+            });
+        }
+
+        // 点赞消息
+        function likeMessage(button) {
+            const icon = button.querySelector('i');
+            icon.style.color = '#ff6b35';
+            showNotification('👍 感谢您的反馈');
+        }
+
+        // 新建对话
+        function newChat() {
+            document.getElementById('messagesArea').innerHTML = `
+                <div class="welcome-section" id="welcomeSection">
+                    <div class="welcome-avatar">
+                        <i class="fas fa-stethoscope text-white text-xl"></i>
+                    </div>
+                    <h1 class="welcome-title">您好，我是AI宠物医生</h1>
+                    <p class="welcome-subtitle">我可以为您提供专业的宠物健康咨询、疾病预防建议和紧急处理指导</p>
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="sendExample('我的狗狗最近食欲不振，精神也不太好，这是什么原因？')">
+                            <div class="example-text">我的狗狗最近食欲不振，精神也不太好，这是什么原因？</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('猫咪频繁呕吐，但还能正常吃喝，需要就医吗？')">
+                            <div class="example-text">猫咪频繁呕吐，但还能正常吃喝，需要就医吗？</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('幼犬疫苗接种的完整时间表和注意事项')">
+                            <div class="example-text">幼犬疫苗接种的完整时间表和注意事项</div>
+                        </div>
+                        <div class="example-prompt" onclick="sendExample('如何判断宠物是否需要紧急就医？')">
+                            <div class="example-text">如何判断宠物是否需要紧急就医？</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="thinking-indicator" id="thinkingIndicator">
+                    <div class="message-header">
+                        <div class="message-avatar assistant">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <span>AI医生</span>
+                    </div>
+                    <div class="thinking-content">
+                        <span style="color: #6b7280; font-size: 14px;">正在分析中</span>
+                        <div class="thinking-dots">
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                            <div class="thinking-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            conversationStarted = false;
+            showNotification('🔄 新建对话');
+        }
+
+        // 附件功能
+        function attachFile() {
+            showNotification('📎 图片上传功能开发中');
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('返回上一页');
+        }
+
+        // 显示菜单
+        function showMenu() {
+            showNotification('📋 显示菜单');
+        }
+
+        // 导航功能
+        function goHome() {
+            showNotification('🏠 首页');
+        }
+
+        function showHistory() {
+            showNotification('📋 历史记录');
+        }
+
+        function showMap() {
+            showNotification('🗺️ 地图');
+        }
+
+        function showProfile() {
+            showNotification('👤 个人资料');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.4s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

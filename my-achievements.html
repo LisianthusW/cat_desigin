@@ -31,88 +31,247 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fef7ed 0%, #fff7ed 50%, #fefbf3 100%);
         }
         .header-section {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fef7ed 50%, #ffffff 100%);
             flex-shrink: 0;
+            position: relative;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.1);
         }
         .content-section {
             flex: 1;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #fefbf3 50%, #f0f9ff 100%);
             overflow-y: auto;
+            position: relative;
         }
-        .card {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
+        
+        /* 统计概览卡片 */
+        .overview-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fefcf9 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 16px;
+            box-shadow: 0 4px 20px rgba(251, 146, 60, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.1);
         }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
-        .achievement-item {
+        .stat-item {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 12px;
             transition: all 0.2s ease;
-            cursor: pointer;
         }
-        .achievement-item:hover {
-            background-color: #f8fafc;
+        .stat-item:hover {
+            transform: translateY(-2px);
         }
-        .achievement-unlocked {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 1px solid #f59e0b;
+        .stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
-        .achievement-locked {
-            opacity: 0.6;
+        .stat-label {
+            font-size: 11px;
+            color: #92400e;
+            font-weight: 500;
         }
-        .nav-button-active {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        .stat-total { 
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); 
+            color: #4338ca; 
         }
-        .slide-in {
-            animation: slideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        .stat-gold { 
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+            color: #d97706; 
         }
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .stat-silver { 
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); 
+            color: #64748b; 
+        }
+        .stat-bronze { 
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%); 
+            color: #ea580c; 
+        }
+        
+        /* 进度条 */
+        .progress-overview {
+            background: linear-gradient(135deg, #fef7ed 0%, #fff7ed 100%);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+        }
+        .progress-text {
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
         .progress-bar {
-            background: #e5e7eb;
-            height: 8px;
-            border-radius: 4px;
+            background: #fee2e2;
+            height: 6px;
+            border-radius: 3px;
             overflow: hidden;
+            margin-bottom: 6px;
         }
         .progress-fill {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             height: 100%;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: width 0.3s ease;
         }
-        .category-tab {
-            transition: all 0.2s ease;
+        .progress-percentage {
+            font-size: 12px;
+            font-weight: 600;
+            color: #d97706;
         }
-        .category-tab.active {
-            background: rgba(255, 255, 255, 0.95);
-            color: #1f2937;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        
+        /* 成就网格 */
+        .achievements-container {
+            padding: 0 16px 16px;
         }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .achievement-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fefcf9 100%);
+            border: 1px solid rgba(251, 146, 60, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 15px rgba(251, 146, 60, 0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .achievement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(251, 146, 60, 0.12);
+            border-color: rgba(251, 146, 60, 0.2);
+        }
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border-color: #10b981;
+            box-shadow: 0 2px 15px rgba(16, 185, 129, 0.1);
+        }
+        .achievement-card.unlocked:hover {
+            box-shadow: 0 4px 25px rgba(16, 185, 129, 0.15);
+        }
+        .achievement-card.locked {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #fefefe 0%, #faf9f7 100%);
+            border-color: rgba(180, 180, 180, 0.2);
+        }
+        
+        .achievement-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .achievement-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .achievement-card.unlocked .achievement-icon {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .achievement-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .achievement-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+        .achievement-level {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .level-gold { background: #fef3c7; color: #d97706; }
+        .level-silver { background: #f1f5f9; color: #64748b; }
+        .level-bronze { background: #fed7aa; color: #ea580c; }
+        
+        .achievement-description {
+            font-size: 12px;
+            color: #a16207;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .achievement-progress {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        .progress-text-small {
+            font-size: 11px;
+            color: #a16207;
+        }
+        .progress-bar-small {
+            background: rgba(251, 146, 60, 0.2);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            flex: 1;
+            margin: 0 8px;
+        }
+        .progress-fill-small {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
         .achievement-badge {
-            width: 60px;
-            height: 60px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        .achievement-glow {
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
-            animation: glow 2s ease-in-out infinite alternate;
+        .achievement-card.unlocked .achievement-badge {
+            opacity: 1;
         }
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
-            to { box-shadow: 0 0 30px rgba(251, 191, 36, 0.9); }
+        
+        .nav-button-active {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
     </style>
 </head>
@@ -122,67 +281,64 @@
         <div class="header-section px-4 py-6 flex-shrink-0">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <button onclick="goBack()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
-                        <i class="fas fa-arrow-left text-white text-lg"></i>
+                    <button onclick="goBack()" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-sm border border-orange-200">
+                        <i class="fas fa-arrow-left text-orange-700 text-sm"></i>
                     </button>
-                    <h1 class="text-xl font-bold text-white">我的成就</h1>
+                    <h1 class="text-xl font-bold text-orange-800">我的成就</h1>
                 </div>
-                <button onclick="shareAchievements()" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-filter backdrop-blur-10">
-                    <i class="fas fa-share text-white text-lg"></i>
-                </button>
-            </div>
-            
-            <!-- 成就总览卡片 -->
-            <div class="card rounded-xl p-4">
-                <div class="text-center">
-                    <div class="flex justify-center mb-3">
-                        <div class="achievement-badge bg-gradient-to-br from-yellow-400 to-orange-500 achievement-glow">
-                            <i class="fas fa-trophy text-white text-2xl"></i>
-                        </div>
-                    </div>
-                    <h2 class="text-lg font-bold text-gray-800 mb-1">铲屎官达人</h2>
-                    <p class="text-sm text-gray-600 mb-3">已解锁 12/20 个成就</p>
-                    <div class="progress-bar mb-2">
-                        <div class="progress-fill" style="width: 60%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">距离下一等级还需 8 个成就</p>
-                </div>
-            </div>
-            
-            <!-- 分类导航 -->
-            <div class="flex space-x-2 mt-4 overflow-x-auto pb-2">
-                <button onclick="filterAchievements('all')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap active">
-                    全部
-                </button>
-                <button onclick="filterAchievements('care')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
-                    护理
-                </button>
-                <button onclick="filterAchievements('track')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
-                    追踪
-                </button>
-                <button onclick="filterAchievements('social')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
-                    社交
-                </button>
-                <button onclick="filterAchievements('special')" class="category-tab bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-medium text-white whitespace-nowrap">
-                    特殊
+                <button onclick="shareAchievements()" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-sm border border-orange-200">
+                    <i class="fas fa-share text-orange-700 text-sm"></i>
                 </button>
             </div>
         </div>
 
         <!-- 主要内容区域 -->
         <div class="content-section">
-            <!-- 成就列表 -->
-            <div class="px-4 py-3 pb-20">
-                <div class="card rounded-xl overflow-hidden slide-in">
-                    <div class="divide-y divide-gray-100" id="achievementList">
-                        <!-- 成就将通过JavaScript动态生成 -->
+            <!-- 统计概览卡片 -->
+            <div class="overview-card">
+                <div class="overview-stats">
+                    <div class="stat-item stat-total">
+                        <div class="stat-number" id="totalAchievements">0</div>
+                        <div class="stat-label">总成就</div>
                     </div>
+                    <div class="stat-item stat-gold">
+                        <div class="stat-number" id="goldAchievements">0</div>
+                        <div class="stat-label">金级</div>
+                    </div>
+                    <div class="stat-item stat-silver">
+                        <div class="stat-number" id="silverAchievements">0</div>
+                        <div class="stat-label">银级</div>
+                    </div>
+                    <div class="stat-item stat-bronze">
+                        <div class="stat-number" id="bronzeAchievements">0</div>
+                        <div class="stat-label">铜级</div>
+                    </div>
+                </div>
+                <div class="progress-overview">
+                    <div class="progress-text">总体完成度</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-percentage" id="progressText">0%</div>
+                </div>
+            </div>
+            
+            <!-- 成就列表 -->
+            <div class="achievements-container pb-20">
+                <div class="section-title">🏆 已获得成就</div>
+                <div class="achievements-grid" id="unlockedGrid">
+                    <!-- 已解锁成就将通过JavaScript生成 -->
+                </div>
+                
+                <div class="section-title">🎯 进行中成就</div>
+                <div class="achievements-grid" id="lockedGrid">
+                    <!-- 未解锁成就将通过JavaScript生成 -->
                 </div>
             </div>
         </div>
 
         <!-- 底部导航栏 -->
-        <div class="bg-white px-4 py-2 flex-shrink-0" style="background-color: white; opacity: 1;">
+        <div class="bg-white px-4 py-2 flex-shrink-0 border-t border-orange-100">
             <div class="flex justify-around items-center">
                 <button class="flex flex-col items-center space-y-0.5 py-1.5 transition-colors duration-200" onclick="goToHome()">
                     <i class="fas fa-home text-gray-400 text-base"></i>
@@ -214,247 +370,277 @@
         const achievements = [
             {
                 id: 1,
-                category: 'care',
                 name: '新手铲屎官',
                 description: '注册账号并添加第一只宠物',
                 icon: 'fa-paw',
                 iconColor: 'from-blue-400 to-blue-500',
                 unlocked: true,
+                level: 'bronze',
                 progress: 100,
-                maxProgress: 100,
-                reward: '经验 +10',
-                unlockedDate: '2023-05-15'
+                maxProgress: 100
             },
             {
                 id: 2,
-                category: 'track',
                 name: '追踪新手',
                 description: '累计追踪宠物 7 天',
                 icon: 'fa-calendar-check',
                 iconColor: 'from-green-400 to-green-500',
                 unlocked: true,
+                level: 'silver',
                 progress: 100,
-                maxProgress: 100,
-                reward: '经验 +20',
-                unlockedDate: '2023-05-22'
+                maxProgress: 100
             },
             {
                 id: 3,
-                category: 'track',
                 name: '运动达人',
                 description: '宠物单日步数达到 5000 步',
                 icon: 'fa-running',
                 iconColor: 'from-orange-400 to-orange-500',
                 unlocked: true,
+                level: 'gold',
                 progress: 100,
-                maxProgress: 100,
-                reward: '徽章 +1',
-                unlockedDate: '2023-05-28'
+                maxProgress: 100
             },
             {
                 id: 4,
-                category: 'care',
                 name: '多宠之家',
                 description: '添加 3 只及以上宠物',
                 icon: 'fa-home',
                 iconColor: 'from-purple-400 to-purple-500',
                 unlocked: true,
+                level: 'gold',
                 progress: 100,
-                maxProgress: 100,
-                reward: '称号：多宠之家',
-                unlockedDate: '2023-06-01'
+                maxProgress: 100
             },
             {
                 id: 5,
-                category: 'track',
                 name: '马拉松挑战',
                 description: '宠物累计步数达到 50000 步',
                 icon: 'fa-medal',
                 iconColor: 'from-yellow-400 to-yellow-500',
                 unlocked: false,
+                level: 'gold',
                 progress: 28000,
-                maxProgress: 50000,
-                reward: '专属徽章'
+                maxProgress: 50000
             },
             {
                 id: 6,
-                category: 'social',
                 name: '分享专家',
                 description: '分享宠物动态 10 次',
                 icon: 'fa-share-alt',
                 iconColor: 'from-pink-400 to-pink-500',
                 unlocked: false,
+                level: 'silver',
                 progress: 3,
-                maxProgress: 10,
-                reward: '分享达人称号'
+                maxProgress: 10
             },
             {
                 id: 7,
-                category: 'care',
                 name: '健康守护者',
                 description: '完成宠物健康档案记录',
                 icon: 'fa-heartbeat',
                 iconColor: 'from-red-400 to-red-500',
                 unlocked: true,
+                level: 'gold',
                 progress: 100,
-                maxProgress: 100,
-                reward: '健康徽章',
-                unlockedDate: '2023-06-05'
+                maxProgress: 100
             },
             {
                 id: 8,
-                category: 'special',
                 name: '早起的鸟儿',
                 description: '连续 7 天在早上 7 点前查看宠物状态',
                 icon: 'fa-sun',
                 iconColor: 'from-yellow-300 to-orange-400',
                 unlocked: false,
+                level: 'bronze',
                 progress: 2,
-                maxProgress: 7,
-                reward: '早起徽章'
+                maxProgress: 7
             },
             {
                 id: 9,
-                category: 'track',
                 name: '设备专家',
                 description: '使用追踪设备 30 天',
                 icon: 'fa-microchip',
                 iconColor: 'from-indigo-400 to-indigo-500',
                 unlocked: false,
+                level: 'silver',
                 progress: 15,
-                maxProgress: 30,
-                reward: '设备达人称号'
+                maxProgress: 30
             },
             {
                 id: 10,
-                category: 'social',
                 name: '购物达人',
                 description: '在商城购买商品 5 次',
                 icon: 'fa-shopping-bag',
                 iconColor: 'from-emerald-400 to-emerald-500',
                 unlocked: true,
+                level: 'bronze',
                 progress: 100,
-                maxProgress: 100,
-                reward: '购物徽章',
-                unlockedDate: '2023-06-10'
+                maxProgress: 100
+            },
+            {
+                id: 11,
+                name: '忠诚伙伴',
+                description: '连续使用30天',
+                icon: 'fa-heart',
+                iconColor: 'from-red-400 to-red-500',
+                unlocked: true,
+                level: 'silver',
+                progress: 100,
+                maxProgress: 100
+            },
+            {
+                id: 12,
+                name: '社交之星',
+                description: '添加好友达到10人',
+                icon: 'fa-users',
+                iconColor: 'from-purple-400 to-purple-500',
+                unlocked: true,
+                level: 'bronze',
+                progress: 100,
+                maxProgress: 100
+            },
+            {
+                id: 13,
+                name: '探索者',
+                description: '访问10个不同的功能页面',
+                icon: 'fa-compass',
+                iconColor: 'from-teal-400 to-teal-500',
+                unlocked: false,
+                level: 'bronze',
+                progress: 6,
+                maxProgress: 10
+            },
+            {
+                id: 14,
+                name: '数据达人',
+                description: '查看数据报告50次',
+                icon: 'fa-chart-line',
+                iconColor: 'from-cyan-400 to-cyan-500',
+                unlocked: false,
+                level: 'silver',
+                progress: 23,
+                maxProgress: 50
+            },
+            {
+                id: 15,
+                name: '完美主义者',
+                description: '连续30天完成所有日常任务',
+                icon: 'fa-star',
+                iconColor: 'from-amber-400 to-amber-500',
+                unlocked: false,
+                level: 'gold',
+                progress: 12,
+                maxProgress: 30
             }
         ];
 
-        let currentFilter = 'all';
-
         // 初始化页面
         function initPage() {
-            displayAchievements(achievements);
+            updateStatistics();
+            displayAchievements();
         }
 
-        // 显示成就列表
-        function displayAchievements(achievementsToShow) {
-            const achievementList = document.getElementById('achievementList');
-            achievementList.innerHTML = '';
+        // 更新统计数据
+        function updateStatistics() {
+            const unlockedAchievements = achievements.filter(a => a.unlocked);
+            const goldCount = unlockedAchievements.filter(a => a.level === 'gold').length;
+            const silverCount = unlockedAchievements.filter(a => a.level === 'silver').length;
+            const bronzeCount = unlockedAchievements.filter(a => a.level === 'bronze').length;
+            const totalCount = unlockedAchievements.length;
+            const progressPercentage = Math.round((totalCount / achievements.length) * 100);
+
+            document.getElementById('totalAchievements').textContent = totalCount;
+            document.getElementById('goldAchievements').textContent = goldCount;
+            document.getElementById('silverAchievements').textContent = silverCount;
+            document.getElementById('bronzeAchievements').textContent = bronzeCount;
+            document.getElementById('overallProgress').style.width = progressPercentage + '%';
+            document.getElementById('progressText').textContent = progressPercentage + '%';
+        }
+
+        // 显示成就
+        function displayAchievements() {
+            const unlockedGrid = document.getElementById('unlockedGrid');
+            const lockedGrid = document.getElementById('lockedGrid');
             
-            if (achievementsToShow.length === 0) {
-                achievementList.innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-trophy text-4xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500">暂无相关成就</p>
-                    </div>
-                `;
-                return;
-            }
+            unlockedGrid.innerHTML = '';
+            lockedGrid.innerHTML = '';
             
-            achievementsToShow.forEach(achievement => {
-                const achievementItem = createAchievementItem(achievement);
-                achievementList.appendChild(achievementItem);
+            const unlockedAchievements = achievements.filter(a => a.unlocked);
+            const lockedAchievements = achievements.filter(a => !a.unlocked);
+            
+            unlockedAchievements.forEach(achievement => {
+                const card = createAchievementCard(achievement);
+                unlockedGrid.appendChild(card);
+            });
+            
+            lockedAchievements.forEach(achievement => {
+                const card = createAchievementCard(achievement);
+                lockedGrid.appendChild(card);
             });
         }
 
-        // 创建成就项
-        function createAchievementItem(achievement) {
-            const div = document.createElement('div');
-            div.className = `achievement-item px-4 py-4 ${achievement.unlocked ? 'achievement-unlocked' : 'achievement-locked'}`;
-            div.onclick = () => viewAchievementDetail(achievement);
+        // 创建成就卡片
+        function createAchievementCard(achievement) {
+            const card = document.createElement('div');
+            card.className = `achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+            card.onclick = () => viewAchievementDetail(achievement);
             
             const progressPercent = Math.round((achievement.progress / achievement.maxProgress) * 100);
             
-            div.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <div class="achievement-badge bg-gradient-to-br ${achievement.iconColor} ${achievement.unlocked ? 'achievement-glow' : ''}">
-                        <i class="fas ${achievement.icon} text-white text-lg"></i>
-                        ${achievement.unlocked ? '<div class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"><i class="fas fa-check text-white text-xs"></i></div>' : ''}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-1">
-                            <h4 class="font-medium text-gray-800">${achievement.name}</h4>
-                            ${achievement.unlocked ? '<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">已获得</span>' : ''}
-                        </div>
-                        <p class="text-sm text-gray-600 mb-2">${achievement.description}</p>
-                        ${!achievement.unlocked ? `
-                            <div class="mb-2">
-                                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>进度</span>
-                                    <span>${achievement.progress}/${achievement.maxProgress}</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        <div class="flex items-center justify-between">
-                            <p class="text-xs text-gray-500">奖励: ${achievement.reward}</p>
-                            ${achievement.unlocked ? `<span class="text-xs text-gray-400">${achievement.unlockedDate}</span>` : ''}
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+            card.innerHTML = `
+                <div class="achievement-badge">
+                    <i class="fas fa-check text-white text-xs"></i>
                 </div>
+                <div class="achievement-header">
+                    <div class="achievement-icon bg-gradient-to-br ${achievement.iconColor}">
+                        <i class="fas ${achievement.icon}"></i>
+                    </div>
+                    <div class="achievement-info">
+                        <div class="achievement-name">${achievement.name}</div>
+                        <span class="achievement-level level-${achievement.level}">${getLevelName(achievement.level)}</span>
+                    </div>
+                </div>
+                <div class="achievement-description">${achievement.description}</div>
+                ${!achievement.unlocked ? `
+                    <div class="achievement-progress">
+                        <span class="progress-text-small">${achievement.progress}</span>
+                        <div class="progress-bar-small">
+                            <div class="progress-fill-small" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <span class="progress-text-small">${achievement.maxProgress}</span>
+                    </div>
+                ` : ''}
             `;
             
-            return div;
+            return card;
         }
 
-        // 筛选成就
-        function filterAchievements(category) {
-            currentFilter = category;
-            
-            // 更新分类按钮状态
-            document.querySelectorAll('.category-tab').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // 筛选并显示成就
-            const filteredAchievements = category === 'all' 
-                ? achievements 
-                : achievements.filter(achievement => achievement.category === category);
-            
-            displayAchievements(filteredAchievements);
-            showNotification(`🏆 显示${getCategoryName(category)}成就`);
-        }
-
-        // 获取分类名称
-        function getCategoryName(category) {
-            const categoryNames = {
-                'all': '全部',
-                'care': '护理',
-                'track': '追踪',
-                'social': '社交',
-                'special': '特殊'
+        // 获取等级名称
+        function getLevelName(level) {
+            const levelNames = {
+                'gold': '金级',
+                'silver': '银级',
+                'bronze': '铜级'
             };
-            return categoryNames[category] || category;
+            return levelNames[level] || level;
         }
 
         // 查看成就详情
         function viewAchievementDetail(achievement) {
-            showNotification(`🔍 查看成就：${achievement.name}`);
+            const status = achievement.unlocked ? '已获得' : `进度: ${achievement.progress}/${achievement.maxProgress}`;
+            showNotification(`🏆 ${achievement.name} - ${status}`);
         }
 
         // 分享成就
         function shareAchievements() {
-            showNotification('📤 分享我的成就');
+            const totalCount = achievements.filter(a => a.unlocked).length;
+            showNotification(`📤 我已获得 ${totalCount} 个成就！`);
         }
 
         // 返回上一页
         function goBack() {
-            showNotification('🔙 返回我的页面');
+            showNotification('🔙 返回个人中心');
         }
 
         // 页面跳转函数
@@ -504,7 +690,7 @@
                 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
                 15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
                 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-                100% { opacity: 0; transform: translate(-50%, -50()) scale(0.8); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
             }
         `;
         document.head.appendChild(style);

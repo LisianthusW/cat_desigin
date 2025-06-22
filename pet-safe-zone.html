@@ -22,238 +22,398 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
+        
         .pet-tracker-container {
             width: 375px;
             height: 812px;
             margin: 0 auto;
-            box-shadow: 0 0 30px rgba(0,0,0,0.2);
-            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-radius: 24px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             background: #ffffff;
-        }
-        .map-container {
-            flex: 1;
             position: relative;
-            overflow: hidden;
         }
         
-        /* 高德地图容器 */
+        /* 浮动导航栏 */
+        .floating-nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            z-index: 100;
+            padding: 12px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .floating-nav h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .nav-btn.back {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+        
+        .nav-btn.add {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        }
+        
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 分屏布局 */
+        .split-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 紧凑地图区域 - 适当减少高度以给管理区域更多空间 */
+        .compact-map {
+            height: 360px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
         #amap-container {
             width: 100%;
             height: 100%;
             position: absolute;
             top: 0;
             left: 0;
-            z-index: 1;
         }
         
-        /* 地图样式覆盖 */
-        .amap-logo, .amap-copyright {
-            opacity: 0.3 !important;
-        }
-        
-        .top-nav {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            z-index: 50;
-        }
-        
-        .top-nav h1 {
-            font-size: 16px;
-            text-align: left;
+        /* 安全范围管理区域 - 优化显示 */
+        .zone-management-area {
             flex: 1;
-            margin-left: 12px;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 0;
         }
         
-        .safe-zone-card {
+        .section-header {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .zone-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* 全新的卡片设计 - 确保清晰可见 */
+        .modern-zone-card {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modern-zone-card::before {
+            content: '';
             position: absolute;
-            bottom: 20px;
-            left: 16px;
-            right: 16px;
-            background: transparent;
-            backdrop-filter: none;
-            border-top: none;
-            z-index: 20;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #34c759 0%, #22c55e 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
-        .zone-item {
-            background: rgba(255, 255, 255, 0.98);
-            border: none;
-            border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            backdrop-filter: blur(20px);
+        .modern-zone-card.active::before {
+            opacity: 1;
         }
         
-        .zone-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        .modern-zone-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            border-color: rgba(34, 197, 94, 0.2);
         }
         
-        .zone-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        
+        .zone-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(238, 90, 36, 0.3);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.25);
         }
         
-        .zone-content {
-            flex: 1;
-            min-width: 0;
+        .zone-icon-wrapper i {
+            color: white;
+            font-size: 17px;
         }
         
-        .zone-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 2px;
-            line-height: 1.2;
-        }
-        
-        .zone-address {
-            font-size: 10px;
-            color: #8e8e93;
-            line-height: 1.3;
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .zone-radius {
-            font-size: 9px;
-            color: #007aff;
-            background: rgba(0, 122, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 8px;
-            display: inline-block;
-            font-weight: 500;
-        }
-        
-        .zone-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-        
-        /* 现代化开关样式 */
-        .toggle-switch {
+        /* 现代化开关 - 重新设计 */
+        .modern-toggle {
             position: relative;
-            width: 40px;
-            height: 22px;
+            width: 48px;
+            height: 28px;
             background: #e5e5ea;
-            border-radius: 11px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 2px solid transparent;
         }
         
-        .toggle-switch.active {
+        .modern-toggle.active {
             background: #34c759;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
         }
         
-        .toggle-knob {
+        .modern-toggle-knob {
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             background: white;
             border-radius: 50%;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
-        .toggle-switch.active .toggle-knob {
-            transform: translateX(18px);
+        .modern-toggle.active .modern-toggle-knob {
+            transform: translateX(20px);
         }
         
-        .location-marker {
-            background: #ef4444;
-            color: white;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .safe-zone-overlay {
-            background: rgba(34, 197, 94, 0.2);
-            border: 2px solid #22c55e;
-            border-radius: 8px;
+        .zone-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .zone-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.3;
+        }
+        
+        .zone-location {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .zone-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        .stat-item {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .stat-item.radius {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .stat-item.status {
+            background: rgba(245, 101, 101, 0.1);
+            color: #f56565;
+        }
+        
+        .stat-item.status.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        /* 地图样式覆盖 */
+        .amap-logo, .amap-copyright {
+            opacity: 0.2 !important;
+        }
+        
+        /* 添加一些视觉装饰 */
+        .decorative-bg {
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <div class="pet-tracker-container">
-        <!-- 顶部导航栏 -->
-        <div class="top-nav px-4 py-3 flex items-center justify-between flex-shrink-0">
-            <div class="flex items-center">
-                <button class="w-8 h-8 flex items-center justify-center" onclick="goBack()">
-                    <i class="fas fa-chevron-left text-gray-600 text-lg"></i>
-                </button>
-                <h1 class="text-sm font-medium text-gray-800">宠物安全范围</h1>
-            </div>
-            <button class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center" onclick="addSafeZone()">
-                <i class="fas fa-plus text-white text-lg"></i>
+        <!-- 浮动导航栏 -->
+        <div class="floating-nav flex items-center justify-between">
+            <button class="nav-btn back" onclick="goBack()">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <h1>宠物安全范围</h1>
+            <button class="nav-btn add" onclick="addSafeZone()">
+                <i class="fas fa-plus text-sm"></i>
             </button>
         </div>
 
-        <!-- 地图主界面 -->
-        <div class="map-container">
-            <!-- 高德地图容器 -->
-            <div id="amap-container"></div>
+        <!-- 分屏容器 -->
+        <div class="split-container">
+            <!-- 紧凑地图区域 -->
+            <div class="compact-map">
+                <div id="amap-container"></div>
+            </div>
             
-            <!-- 底部安全范围设置卡片 - 浮动在地图上方 -->
-            <div class="safe-zone-card">
-                <div class="space-y-2">
-                    <!-- 第一个安全范围 -->
-                    <div class="zone-item rounded-xl p-3 flex items-center gap-3">
-                        <!-- 左侧圆角矩形图片 -->
-                        <div class="zone-avatar">
-                            <i class="fas fa-home text-white text-sm"></i>
+            <!-- 安全范围管理区域 -->
+            <div class="zone-management-area">
+                <div class="decorative-bg"></div>
+                
+                <!-- 区域标题 -->
+                <div class="section-header relative z-10">
+                    <div class="section-title">
+                        <i class="fas fa-shield-alt text-green-500"></i>
+                        安全范围管理
+                    </div>
+                    <div class="section-subtitle">
+                        设置和管理您的宠物活动安全区域，确保宠物在指定范围内安全活动
+                    </div>
+                </div>
+                
+                <!-- 安全范围卡片容器 -->
+                <div class="zone-cards-container relative z-10">
+                    <!-- 第一个安全范围卡片 -->
+                    <div class="modern-zone-card active">
+                        <div class="card-header">
+                            <div class="zone-icon-wrapper">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="modern-toggle active" onclick="toggleModernSwitch(this, 0)">
+                                <div class="modern-toggle-knob"></div>
+                            </div>
                         </div>
                         
-                        <!-- 中间内容区域 -->
-                        <div class="zone-content">
-                            <div class="zone-title">家庭安全区域</div>
-                            <div class="zone-address">浙江省宁波市鄞州区东钱湖镇</div>
-                            <div class="zone-radius">半径 500m</div>
-                        </div>
-                        
-                        <!-- 右侧控制区域 -->
-                        <div class="zone-controls">
-                            <div class="toggle-switch active" onclick="toggleSwitch(this)">
-                                <div class="toggle-knob"></div>
+                        <div class="card-content">
+                            <div class="zone-info">
+                                <div class="zone-name">家庭安全区域</div>
+                                <div class="zone-location">
+                                    <i class="fas fa-map-marker-alt text-xs"></i>
+                                    浙江省宁波市鄞州区东钱湖镇
+                                </div>
+                            </div>
+                            
+                            <div class="zone-stats">
+                                <div class="stat-item radius">
+                                    <i class="fas fa-expand-arrows-alt text-xs"></i>
+                                    500m
+                                </div>
+                                <div class="stat-item status active">
+                                    <i class="fas fa-circle text-xs"></i>
+                                    已启用
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 第二个安全范围 -->
-                    <div class="zone-item rounded-xl p-3 flex items-center gap-3">
-                        <!-- 左侧圆角矩形图片 -->
-                        <div class="zone-avatar">
-                            <i class="fas fa-building text-white text-sm"></i>
+                    <!-- 第二个安全范围卡片 -->
+                    <div class="modern-zone-card">
+                        <div class="card-header">
+                            <div class="zone-icon-wrapper">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="modern-toggle" onclick="toggleModernSwitch(this, 1)">
+                                <div class="modern-toggle-knob"></div>
+                            </div>
                         </div>
                         
-                        <!-- 中间内容区域 -->
-                        <div class="zone-content">
-                            <div class="zone-title">公司安全区域</div>
-                            <div class="zone-address">浙江省宁波市鄞州区钱湖北路</div>
-                            <div class="zone-radius">半径 300m</div>
-                        </div>
-                        
-                        <!-- 右侧控制区域 -->
-                        <div class="zone-controls">
-                            <div class="toggle-switch" onclick="toggleSwitch(this)">
-                                <div class="toggle-knob"></div>
+                        <div class="card-content">
+                            <div class="zone-info">
+                                <div class="zone-name">公司安全区域</div>
+                                <div class="zone-location">
+                                    <i class="fas fa-map-marker-alt text-xs"></i>
+                                    浙江省宁波市鄞州区钱湖北路
+                                </div>
+                            </div>
+                            
+                            <div class="zone-stats">
+                                <div class="stat-item radius">
+                                    <i class="fas fa-expand-arrows-alt text-xs"></i>
+                                    300m
+                                </div>
+                                <div class="stat-item status">
+                                    <i class="fas fa-circle text-xs"></i>
+                                    已禁用
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -269,17 +429,17 @@
         // 安全范围数据
         const safeZones = [
             {
-                name: '范围名称',
-                address: '浙江省宁波市鄞州区xxx大道',
-                position: [121.619856, 29.868388], // 宁波东钱湖附近坐标
+                name: '家庭安全区域',
+                address: '浙江省宁波市鄞州区东钱湖镇',
+                position: [121.619856, 29.868388],
                 radius: 500,
                 active: true
             },
             {
-                name: '范围名称',
-                address: '浙江省宁波市鄞州区xxx大道',
-                position: [121.635856, 29.878388], // 另一个位置
-                radius: 500,
+                name: '公司安全区域',
+                address: '浙江省宁波市鄞州区钱湖北路',
+                position: [121.635856, 29.878388],
+                radius: 300,
                 active: false
             }
         ];
@@ -288,8 +448,8 @@
         function initMap() {
             try {
                 map = new AMap.Map('amap-container', {
-                    center: [121.627856, 29.873388], // 宁波东钱湖区域中心
-                    zoom: 13,
+                    center: [121.627856, 29.873388],
+                    zoom: 12,
                     mapStyle: 'amap://styles/normal',
                     showLabel: true,
                     scrollWheel: true,
@@ -306,17 +466,14 @@
                     features: ['bg', 'road', 'building', 'point']
                 });
 
-                // 添加安全范围标记
                 addSafeZoneMarkers();
 
-                // 地图加载完成回调
                 map.on('complete', function() {
                     console.log('宠物安全范围地图加载完成');
                 });
 
             } catch (error) {
                 console.error('高德地图初始化失败:', error);
-                // 地图加载失败时的降级处理
                 document.getElementById('amap-container').innerHTML = `
                     <div style="
                         width: 100%; 
@@ -333,7 +490,10 @@
                         justify-content: center;
                         color: #64748b;
                         font-size: 14px;
+                        flex-direction: column;
+                        gap: 8px;
                     ">
+                        <i class="fas fa-map text-2xl"></i>
                         地图加载中...
                     </div>
                 `;
@@ -345,7 +505,6 @@
             if (!map) return;
 
             safeZones.forEach((zone, index) => {
-                // 创建安全范围圆圈
                 const circle = new AMap.Circle({
                     center: zone.position,
                     radius: zone.radius,
@@ -356,45 +515,48 @@
                     strokeOpacity: zone.active ? 0.8 : 0.5
                 });
 
-                // 创建位置标记
                 const marker = new AMap.Marker({
                     position: zone.position,
                     title: zone.name,
                     content: `
                         <div style="
-                            width: 12px; 
-                            height: 12px; 
+                            width: 14px; 
+                            height: 14px; 
                             border-radius: 50%; 
                             background: ${zone.active ? '#ef4444' : '#9ca3af'};
-                            border: 2px solid white;
-                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                            border: 3px solid white;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
                         "></div>
                     `
                 });
 
-                // 添加到地图
                 map.add([circle, marker]);
                 safeZoneCircles.push({ circle, marker, zone, index });
             });
         }
 
-        // 切换开关状态
-        function toggleSwitch(element) {
+        // 现代化开关切换
+        function toggleModernSwitch(element, index) {
             const isActive = element.classList.contains('active');
-            const index = Array.from(element.parentElement.parentElement.parentElement.children).indexOf(element.parentElement.parentElement);
+            const card = element.closest('.modern-zone-card');
+            const statusElement = card.querySelector('.stat-item.status');
             
             if (isActive) {
                 element.classList.remove('active');
+                card.classList.remove('active');
                 safeZones[index].active = false;
+                statusElement.classList.remove('active');
+                statusElement.innerHTML = '<i class="fas fa-circle text-xs"></i>已禁用';
             } else {
                 element.classList.add('active');
+                card.classList.add('active');
                 safeZones[index].active = true;
+                statusElement.classList.add('active');
+                statusElement.innerHTML = '<i class="fas fa-circle text-xs"></i>已启用';
             }
             
-            // 更新地图上的安全范围显示
             updateSafeZoneDisplay(index);
-            
-            showNotification(isActive ? '安全范围已关闭' : '安全范围已开启');
+            showModernNotification(isActive ? '安全范围已关闭' : '安全范围已开启');
         }
 
         // 更新安全范围显示
@@ -402,7 +564,6 @@
             if (safeZoneCircles[index]) {
                 const { circle, marker, zone } = safeZoneCircles[index];
                 
-                // 更新圆圈样式
                 circle.setOptions({
                     fillColor: zone.active ? '#22c55e' : '#9ca3af',
                     fillOpacity: zone.active ? 0.2 : 0.1,
@@ -410,15 +571,14 @@
                     strokeOpacity: zone.active ? 0.8 : 0.5
                 });
                 
-                // 更新标记样式
                 marker.setContent(`
                     <div style="
-                        width: 12px; 
-                        height: 12px; 
+                        width: 14px; 
+                        height: 14px; 
                         border-radius: 50%; 
                         background: ${zone.active ? '#ef4444' : '#9ca3af'};
-                        border: 2px solid white;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                        border: 3px solid white;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
                     "></div>
                 `);
             }
@@ -426,103 +586,121 @@
 
         // 返回上一页
         function goBack() {
-            showNotification('返回上一页');
-            // 这里可以添加实际的返回逻辑
+            showModernNotification('返回上一页');
         }
 
         // 添加新的安全范围
         function addSafeZone() {
-            showNotification('添加新的安全范围');
-            // 这里可以添加实际的添加逻辑
+            showModernNotification('添加新的安全范围');
         }
 
-        // 显示通知消息
-        function showNotification(message) {
+        // 现代化通知消息
+        function showModernNotification(message) {
             const notification = document.createElement('div');
-            notification.textContent = message;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
             notification.style.cssText = `
                 position: fixed;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                background: rgba(0,0,0,0.8);
+                background: rgba(0,0,0,0.85);
                 color: white;
-                padding: 12px 24px;
-                border-radius: 20px;
+                padding: 16px 24px;
+                border-radius: 16px;
                 font-size: 14px;
-                font-weight: 600;
+                font-weight: 500;
                 z-index: 1000;
-                animation: notification-show 2s ease-out forwards;
+                backdrop-filter: blur(10px);
+                animation: modern-notification 2.5s ease-out forwards;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             `;
             
             document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 2000);
+            setTimeout(() => notification.remove(), 2500);
         }
 
-        // 增强的交互动画效果
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                // 点击波纹效果
-                const ripple = document.createElement('div');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
+        // 增强的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 按钮点击效果
+            document.querySelectorAll('button, .modern-toggle').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+            
+            // 卡片悬浮效果
+            document.querySelectorAll('.modern-zone-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.02)';
+                });
                 
-                ripple.style.cssText = `
-                    position: absolute;
-                    width: ${size}px;
-                    height: ${size}px;
-                    left: ${x}px;
-                    top: ${y}px;
-                    background: rgba(255, 255, 255, 0.3);
-                    border-radius: 50%;
-                    pointer-events: none;
-                    transform: scale(0);
-                    animation: ripple 0.6s linear;
-                `;
-                
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 600);
-                
-                // 按钮缩放效果
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
             });
         });
         
-        // 添加动画样式
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(2);
-                    opacity: 0;
+        // 添加现代化动画样式
+        const modernStyle = document.createElement('style');
+        modernStyle.textContent = `
+            @keyframes modern-notification {
+                0% { 
+                    opacity: 0; 
+                    transform: translate(-50%, -50%) scale(0.8) translateY(20px); 
+                }
+                15% { 
+                    opacity: 1; 
+                    transform: translate(-50%, -50%) scale(1) translateY(0); 
+                }
+                85% { 
+                    opacity: 1; 
+                    transform: translate(-50%, -50%) scale(1) translateY(0); 
+                }
+                100% { 
+                    opacity: 0; 
+                    transform: translate(-50%, -50%) scale(0.8) translateY(-20px); 
                 }
             }
-            @keyframes notification-show {
-                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .modern-zone-card {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+            
+            .modern-zone-card:nth-child(2) {
+                animation-delay: 0.1s;
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(modernStyle);
         
         // 页面加载动画
         window.addEventListener('load', () => {
-            document.querySelector('.pet-tracker-container').style.opacity = '0';
-            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.9)';
-            document.querySelector('.pet-tracker-container').style.transition = 'all 0.5s ease';
+            const container = document.querySelector('.pet-tracker-container');
+            container.style.opacity = '0';
+            container.style.transform = 'scale(0.95) translateY(20px)';
+            container.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             
             setTimeout(() => {
-                document.querySelector('.pet-tracker-container').style.opacity = '1';
-                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+                container.style.opacity = '1';
+                container.style.transform = 'scale(1) translateY(0)';
             }, 100);
         });
 

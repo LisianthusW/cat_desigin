@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>围栏记录 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=6c1576bd552c7e09cbacc760e14f6618&plugin=AMap.Scale"></script>
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .pet-tracker-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            z-index: 100;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .top-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #f1f3f4;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+        
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            flex: 1;
+            text-align: center;
+            margin: 0 20px;
+        }
+        
+        .back-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .add-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .add-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .view-toggle {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 2px;
+            gap: 2px;
+            display: flex;
+            margin: 16px 20px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6c757d;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .toggle-btn.active {
+            background: #ffffff;
+            color: #ff6b35;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .map-container.active {
+            display: block;
+        }
+        
+        #amap-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .amap-logo, .amap-copyright {
+            opacity: 0.3 !important;
+        }
+        
+        .content-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .content-section.hidden {
+            display: none;
+        }
+        
+        .fence-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #6c757d;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .filter-button {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-button:hover {
+            background: rgba(255, 107, 53, 0.2);
+        }
+        
+        .fence-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .fence-item {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .fence-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fence-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .fence-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .fence-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+        
+        .fence-icon.safe {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+        }
+        
+        .fence-details {
+            flex: 1;
+        }
+        
+        .fence-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        
+        .fence-location {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .fence-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .fence-status.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        .fence-status.inactive {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+        
+        .fence-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-icon:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .records-section {
+            margin-top: 20px;
+        }
+        
+        .record-item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        
+        .record-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .record-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .record-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .record-icon.enter {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        .record-icon.exit {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .record-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .record-time {
+            font-size: 11px;
+            color: #6c757d;
+        }
+        
+        .record-details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            z-index: 50;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+        }
+        
+        .nav-items {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .nav-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .nav-item:not(.active) {
+            color: #999;
+            background: transparent;
+        }
+        
+        .nav-item:not(.active):hover {
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="pet-tracker-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span>9:41</span>
+            </div>
+            <div class="status-right">
+                <div class="flex items-center gap-1">
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-black rounded-full"></div>
+                    <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+                </div>
+                <i class="fas fa-wifi text-sm"></i>
+                <div class="w-6 h-3 border border-black rounded-sm relative">
+                    <div class="absolute right-0 top-0 w-4 h-full bg-black rounded-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 顶部导航栏 -->
+        <div class="top-nav">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </button>
+            <h1 class="nav-title">围栏记录</h1>
+            <button class="add-button" onclick="addFence()">
+                <i class="fas fa-plus text-white text-sm"></i>
+            </button>
+        </div>
+
+        <!-- 视图切换 -->
+        <div class="view-toggle">
+            <button class="toggle-btn active" id="listToggle" onclick="toggleView('list')">记录</button>
+            <button class="toggle-btn" id="mapToggle" onclick="toggleView('map')">地图</button>
+        </div>
+
+        <!-- 地图视图 -->
+        <div class="map-container" id="mapView">
+            <div id="amap-container"></div>
+        </div>
+
+        <!-- 记录视图 -->
+        <div class="content-section" id="listView">
+            <!-- 围栏统计 -->
+            <div class="fence-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">活跃围栏</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                    </div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">今日告警</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-history text-white text-sm"></i>
+                    </div>
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">总记录</div>
+                </div>
+            </div>
+
+            <!-- 围栏列表 -->
+            <div class="section-header">
+                <h2 class="section-title">我的围栏</h2>
+                <button class="filter-button" onclick="filterFences()">
+                    <i class="fas fa-filter text-xs"></i> 筛选
+                </button>
+            </div>
+            
+            <div class="fence-list">
+                <div class="fence-item" onclick="viewFence('home')">
+                    <div class="fence-header">
+                        <div class="fence-info">
+                            <div class="fence-icon safe">
+                                <i class="fas fa-home text-white text-sm"></i>
+                            </div>
+                            <div class="fence-details">
+                                <div class="fence-name">家庭安全区</div>
+                                <div class="fence-location">杭州市西湖区·半径500m</div>
+                            </div>
+                        </div>
+                        <div class="fence-status active">
+                            <i class="fas fa-circle text-xs"></i>
+                            活跃
+                        </div>
+                    </div>
+                    <div class="fence-actions">
+                        <div class="action-icon" onclick="editFence('home', event)">
+                            <i class="fas fa-edit text-gray-500 text-xs"></i>
+                        </div>
+                        <div class="action-icon" onclick="toggleFence('home', event)">
+                            <i class="fas fa-power-off text-gray-500 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fence-item" onclick="viewFence('park')">
+                    <div class="fence-header">
+                        <div class="fence-info">
+                            <div class="fence-icon">
+                                <i class="fas fa-tree text-white text-sm"></i>
+                            </div>
+                            <div class="fence-details">
+                                <div class="fence-name">西湖公园</div>
+                                <div class="fence-location">杭州市西湖区·半径300m</div>
+                            </div>
+                        </div>
+                        <div class="fence-status active">
+                            <i class="fas fa-circle text-xs"></i>
+                            活跃
+                        </div>
+                    </div>
+                    <div class="fence-actions">
+                        <div class="action-icon" onclick="editFence('park', event)">
+                            <i class="fas fa-edit text-gray-500 text-xs"></i>
+                        </div>
+                        <div class="action-icon" onclick="toggleFence('park', event)">
+                            <i class="fas fa-power-off text-gray-500 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fence-item" onclick="viewFence('vet')">
+                    <div class="fence-header">
+                        <div class="fence-info">
+                            <div class="fence-icon">
+                                <i class="fas fa-hospital text-white text-sm"></i>
+                            </div>
+                            <div class="fence-details">
+                                <div class="fence-name">宠物医院</div>
+                                <div class="fence-location">杭州市西湖区·半径200m</div>
+                            </div>
+                        </div>
+                        <div class="fence-status inactive">
+                            <i class="fas fa-circle text-xs"></i>
+                            暂停
+                        </div>
+                    </div>
+                    <div class="fence-actions">
+                        <div class="action-icon" onclick="editFence('vet', event)">
+                            <i class="fas fa-edit text-gray-500 text-xs"></i>
+                        </div>
+                        <div class="action-icon" onclick="toggleFence('vet', event)">
+                            <i class="fas fa-power-off text-gray-500 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日记录 -->
+            <div class="records-section">
+                <div class="section-header">
+                    <h2 class="section-title">今日记录</h2>
+                    <button class="filter-button" onclick="viewAllRecords()">
+                        查看全部
+                    </button>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-header">
+                        <div class="record-type">
+                            <div class="record-icon exit">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="record-title">离开家庭安全区</div>
+                        </div>
+                        <div class="record-time">14:32</div>
+                    </div>
+                    <div class="record-details">糯糯离开了家庭安全区，当前位置：西湖区文三路</div>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-header">
+                        <div class="record-type">
+                            <div class="record-icon enter">
+                                <i class="fas fa-arrow-left"></i>
+                            </div>
+                            <div class="record-title">进入西湖公园</div>
+                        </div>
+                        <div class="record-time">15:15</div>
+                    </div>
+                    <div class="record-details">糯糯进入了西湖公园围栏区域，开始散步活动</div>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-header">
+                        <div class="record-type">
+                            <div class="record-icon exit">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="record-title">离开西湖公园</div>
+                        </div>
+                        <div class="record-time">16:45</div>
+                    </div>
+                    <div class="record-details">糯糯离开了西湖公园，散步时长1小时30分钟</div>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-header">
+                        <div class="record-type">
+                            <div class="record-icon enter">
+                                <i class="fas fa-arrow-left"></i>
+                            </div>
+                            <div class="record-title">回到家庭安全区</div>
+                        </div>
+                        <div class="record-time">17:20</div>
+                    </div>
+                    <div class="record-details">糯糯安全回到家中，今日外出活动结束</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <button class="nav-item" onclick="goHome()">
+                    <i class="fas fa-home text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-list text-base"></i>
+                </button>
+                <button class="nav-item active" onclick="showMap()">
+                    <i class="fas fa-location-dot text-base"></i>
+                </button>
+                <button class="nav-item" onclick="showProfile()">
+                    <i class="fas fa-user text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let fenceCircles = [];
+        let petMarker;
+        
+        // 围栏数据
+        const fences = [
+            { 
+                id: 'home', 
+                name: '家庭安全区', 
+                center: [120.151634, 30.287459], 
+                radius: 500, 
+                active: true, 
+                type: 'safe',
+                color: '#22c55e'
+            },
+            { 
+                id: 'park', 
+                name: '西湖公园', 
+                center: [120.148634, 30.285459], 
+                radius: 300, 
+                active: true, 
+                type: 'play',
+                color: '#ff6b35'
+            },
+            { 
+                id: 'vet', 
+                name: '宠物医院', 
+                center: [120.145634, 30.289459], 
+                radius: 200, 
+                active: false, 
+                type: 'medical',
+                color: '#6b7280'
+            }
+        ];
+        
+        // 宠物当前位置
+        const petLocation = [120.150634, 30.286459];
+
+        // 初始化高德地图
+        function initMap() {
+            try {
+                map = new AMap.Map('amap-container', {
+                    center: [120.150634, 30.286459],
+                    zoom: 14,
+                    mapStyle: 'amap://styles/normal',
+                    showLabel: true,
+                    scrollWheel: true,
+                    touchZoom: true,
+                    doubleClickZoom: true,
+                    keyboardEnable: true,
+                    dragEnable: true,
+                    zoomEnable: true,
+                    rotateEnable: true,
+                    animateEnable: true,
+                    jogEnable: true,
+                    pitchEnable: false,
+                    buildingAnimation: true,
+                    features: ['bg', 'road', 'building', 'point']
+                });
+
+                // 添加围栏和标记
+                addFencesAndMarkers();
+
+                // 地图加载完成回调
+                map.on('complete', function() {
+                    console.log('围栏记录地图加载完成');
+                });
+
+            } catch (error) {
+                console.error('高德地图初始化失败:', error);
+                document.getElementById('amap-container').innerHTML = `
+                    <div style="
+                        width: 100%; 
+                        height: 100%; 
+                        background: #f8f9fa;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #6c757d;
+                        font-size: 14px;
+                    ">
+                        地图加载中...
+                    </div>
+                `;
+            }
+        }
+
+        // 添加围栏和标记
+        function addFencesAndMarkers() {
+            if (!map) return;
+
+            // 添加围栏圆圈
+            fences.forEach(fence => {
+                const circle = new AMap.Circle({
+                    center: fence.center,
+                    radius: fence.radius,
+                    strokeColor: fence.color,
+                    strokeWeight: 2,
+                    strokeOpacity: fence.active ? 0.8 : 0.4,
+                    fillColor: fence.color,
+                    fillOpacity: fence.active ? 0.1 : 0.05,
+                    strokeStyle: 'solid'
+                });
+
+                // 围栏标记
+                const marker = new AMap.Marker({
+                    position: fence.center,
+                    title: fence.name,
+                    content: `
+                        <div style="
+                            background: ${fence.color};
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 500;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                            white-space: nowrap;
+                            opacity: ${fence.active ? 1 : 0.6};
+                        ">
+                            ${fence.name}
+                        </div>
+                    `
+                });
+
+                fenceCircles.push({ circle, marker, fence });
+                map.add([circle, marker]);
+            });
+
+            // 添加宠物位置标记
+            petMarker = new AMap.Marker({
+                position: petLocation,
+                title: '糯糯的位置',
+                content: `
+                    <div style="
+                        width: 20px; 
+                        height: 20px; 
+                        border-radius: 50%; 
+                        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                        border: 3px solid white;
+                        box-shadow: 0 0 16px rgba(255, 107, 53, 0.8);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        animation: pet-pulse 1.5s ease-in-out infinite;
+                        position: relative;
+                    ">
+                        <i class="fas fa-dog" style="color: white; font-size: 8px;"></i>
+                    </div>
+                `
+            });
+
+            map.add(petMarker);
+        }
+
+        // 切换视图
+        function toggleView(view) {
+            const listToggle = document.getElementById('listToggle');
+            const mapToggle = document.getElementById('mapToggle');
+            const listView = document.getElementById('listView');
+            const mapView = document.getElementById('mapView');
+
+            if (view === 'list') {
+                listToggle.classList.add('active');
+                mapToggle.classList.remove('active');
+                listView.classList.remove('hidden');
+                mapView.classList.remove('active');
+            } else {
+                mapToggle.classList.add('active');
+                listToggle.classList.remove('active');
+                listView.classList.add('hidden');
+                mapView.classList.add('active');
+                
+                // 延迟调整地图大小
+                setTimeout(() => {
+                    if (map) {
+                        map.getSize();
+                    }
+                }, 100);
+            }
+        }
+
+        // 返回上一页
+        function goBack() {
+            showNotification('返回上一页');
+        }
+
+        // 添加围栏
+        function addFence() {
+            showNotification('➕ 添加新围栏');
+        }
+
+        // 查看围栏详情
+        function viewFence(fenceId) {
+            const fence = fences.find(f => f.id === fenceId);
+            if (fence) {
+                showNotification(`🔍 查看${fence.name}详情`);
+            }
+        }
+
+        // 编辑围栏
+        function editFence(fenceId, event) {
+            event.stopPropagation();
+            const fence = fences.find(f => f.id === fenceId);
+            if (fence) {
+                showNotification(`✏️ 编辑${fence.name}`);
+            }
+        }
+
+        // 切换围栏状态
+        function toggleFence(fenceId, event) {
+            event.stopPropagation();
+            const fence = fences.find(f => f.id === fenceId);
+            if (fence) {
+                fence.active = !fence.active;
+                showNotification(`${fence.active ? '🟢 启用' : '🔴 暂停'}${fence.name}`);
+                
+                // 更新地图上的围栏显示
+                updateFenceDisplay(fenceId);
+            }
+        }
+
+        // 更新围栏显示
+        function updateFenceDisplay(fenceId) {
+            const fenceItem = fenceCircles.find(item => item.fence.id === fenceId);
+            if (fenceItem) {
+                const { circle, fence } = fenceItem;
+                circle.setOptions({
+                    strokeOpacity: fence.active ? 0.8 : 0.4,
+                    fillOpacity: fence.active ? 0.1 : 0.05
+                });
+            }
+        }
+
+        // 筛选围栏
+        function filterFences() {
+            showNotification('🔍 筛选围栏');
+        }
+
+        // 查看所有记录
+        function viewAllRecords() {
+            showNotification('📋 查看全部记录');
+        }
+
+        // 导航功能
+        function goHome() {
+            showNotification('🏠 首页');
+        }
+
+        function showHistory() {
+            showNotification('📋 历史记录');
+        }
+
+        function showMap() {
+            showNotification('🗺️ 地图');
+        }
+
+        function showProfile() {
+            showNotification('👤 个人资料');
+        }
+
+        // 显示通知消息
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 16px;
+                font-size: 14px;
+                font-weight: 500;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: notification-show 2s ease-out forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notification-show {
+                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+                20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            }
+            @keyframes pet-pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载动画
+        window.addEventListener('load', () => {
+            document.querySelector('.pet-tracker-container').style.opacity = '0';
+            document.querySelector('.pet-tracker-container').style.transform = 'scale(0.95)';
+            document.querySelector('.pet-tracker-container').style.transition = 'all 0.4s ease';
+            
+            setTimeout(() => {
+                document.querySelector('.pet-tracker-container').style.opacity = '1';
+                document.querySelector('.pet-tracker-container').style.transform = 'scale(1)';
+            }, 100);
+        });
+
+        // 初始化地图
+        setTimeout(initMap, 100);
+    </script>
+</body>
+</html>

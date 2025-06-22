@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康数据同步 - 多大</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 强制隐藏所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            height: 100vh;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 20px;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main-content {
+            height: calc(100vh - 80px - 80px);
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .health-overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .health-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .health-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .health-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        
+        .health-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .health-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .chart-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .chart-period {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .period-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .period-btn.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+        
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+        
+        /* 轨迹表格样式 */
+        .track-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .track-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .track-filter {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+        
+        .track-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .track-table thead {
+            background: #f8f9fa;
+        }
+        
+        .track-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .track-table td {
+            padding: 12px 8px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .track-row {
+            transition: all 0.2s ease;
+        }
+        
+        .track-row:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rest {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-sleep {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .location-text {
+            font-size: 11px;
+            color: #666;
+            max-width: 80px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .sync-controls {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sync-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+        
+        .sync-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .sync-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .sync-info {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 8px 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-items {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-item {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            color: #666;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+            transform: scale(1.1);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面头部 -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1 class="header-title">健康数据同步</h1>
+                <div class="sync-status">
+                    <div class="sync-indicator"></div>
+                    <span>已同步</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容 -->
+        <div class="main-content">
+            <!-- 健康数据总览 -->
+            <div class="health-overview">
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-heartbeat text-white text-sm"></i>
+                    </div>
+                    <div class="health-value">68</div>
+                    <div class="health-label">心率 (BPM)</div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-walking text-white text-sm"></i>
+                    </div>
+                    <div class="health-value">2,705</div>
+                    <div class="health-label">今日步数</div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-thermometer-half text-white text-sm"></i>
+                    </div>
+                    <div class="health-value">38.5°C</div>
+                    <div class="health-label">体温</div>
+                </div>
+                <div class="health-card">
+                    <div class="health-icon">
+                        <i class="fas fa-bed text-white text-sm"></i>
+                    </div>
+                    <div class="health-value">8.2h</div>
+                    <div class="health-label">睡眠时长</div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">健康趋势</div>
+                    <div class="chart-period">
+                        <button class="period-btn active" onclick="changePeriod('day')">日</button>
+                        <button class="period-btn" onclick="changePeriod('week')">周</button>
+                        <button class="period-btn" onclick="changePeriod('month')">月</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="healthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 轨迹数据表格 -->
+            <div class="track-section">
+                <div class="track-header">
+                    <div class="track-title">今日轨迹记录</div>
+                    <div class="track-filter">
+                        <button class="filter-btn active" onclick="filterTrack('all')">全部</button>
+                        <button class="filter-btn" onclick="filterTrack('active')">活跃</button>
+                        <button class="filter-btn" onclick="filterTrack('rest')">休息</button>
+                    </div>
+                </div>
+                <table class="track-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>状态</th>
+                            <th>位置</th>
+                            <th>心率</th>
+                            <th>步数</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trackTableBody">
+                        <tr class="track-row">
+                            <td>09:15</td>
+                            <td><span class="status-badge status-active">活跃</span></td>
+                            <td><span class="location-text">客厅沙发</span></td>
+                            <td>72</td>
+                            <td>256</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>09:45</td>
+                            <td><span class="status-badge status-rest">休息</span></td>
+                            <td><span class="location-text">阳台</span></td>
+                            <td>65</td>
+                            <td>45</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>10:30</td>
+                            <td><span class="status-badge status-active">活跃</span></td>
+                            <td><span class="location-text">花园</span></td>
+                            <td>78</td>
+                            <td>432</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>11:15</td>
+                            <td><span class="status-badge status-rest">休息</span></td>
+                            <td><span class="location-text">卧室</span></td>
+                            <td>68</td>
+                            <td>23</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>12:00</td>
+                            <td><span class="status-badge status-active">活跃</span></td>
+                            <td><span class="location-text">厨房</span></td>
+                            <td>75</td>
+                            <td>189</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>13:30</td>
+                            <td><span class="status-badge status-sleep">睡眠</span></td>
+                            <td><span class="location-text">狗窝</span></td>
+                            <td>58</td>
+                            <td>12</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>15:45</td>
+                            <td><span class="status-badge status-active">活跃</span></td>
+                            <td><span class="location-text">公园</span></td>
+                            <td>85</td>
+                            <td>567</td>
+                        </tr>
+                        <tr class="track-row">
+                            <td>16:20</td>
+                            <td><span class="status-badge status-rest">休息</span></td>
+                            <td><span class="location-text">草坪</span></td>
+                            <td>70</td>
+                            <td>67</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 同步控制 -->
+            <div class="sync-controls">
+                <button class="sync-btn" onclick="syncNow()" id="syncButton">
+                    <i class="fas fa-sync-alt"></i> 立即同步
+                </button>
+                <div class="sync-info">
+                    上次同步：2分钟前 | 自动同步：已开启
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-items">
+                <button class="nav-item" onclick="goHome()">
+                    <i class="fas fa-home"></i>
+                </button>
+                <button class="nav-item" onclick="showHistory()">
+                    <i class="fas fa-chart-line"></i>
+                </button>
+                <button class="nav-item active">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="nav-item" onclick="showMap()">
+                    <i class="fas fa-map-marked-alt"></i>
+                </button>
+                <button class="nav-item" onclick="showProfile()">
+                    <i class="fas fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化图表
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        const healthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['6:00', '9:00', '12:00', '15:00', '18:00', '21:00'],
+                datasets: [{
+                    label: '心率',
+                    data: [65, 72, 68, 75, 78, 70],
+                    borderColor: '#ff6b35',
+                    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: '步数',
+                    data: [0, 456, 890, 1234, 1678, 2705],
+                    borderColor: '#f7931e',
+                    backgroundColor: 'rgba(247, 147, 30, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: false,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                    x: {
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 切换时间周期
+        function changePeriod(period) {
+            const buttons = document.querySelectorAll('.period-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 根据周期更新图表数据
+            updateChartData(period);
+        }
+
+        function updateChartData(period) {
+            let labels, heartData, stepsData;
+            
+            switch(period) {
+                case 'day':
+                    labels = ['6:00', '9:00', '12:00', '15:00', '18:00', '21:00'];
+                    heartData = [65, 72, 68, 75, 78, 70];
+                    stepsData = [0, 456, 890, 1234, 1678, 2705];
+                    break;
+                case 'week':
+                    labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                    heartData = [70, 68, 72, 75, 73, 71, 69];
+                    stepsData = [2500, 3200, 2800, 3500, 3100, 2900, 2600];
+                    break;
+                case 'month':
+                    labels = ['第1周', '第2周', '第3周', '第4周'];
+                    heartData = [71, 69, 73, 72];
+                    stepsData = [21000, 23500, 22800, 24200];
+                    break;
+            }
+            
+            healthChart.data.labels = labels;
+            healthChart.data.datasets[0].data = heartData;
+            healthChart.data.datasets[1].data = stepsData;
+            healthChart.update();
+        }
+
+        // 筛选轨迹数据
+        function filterTrack(type) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const rows = document.querySelectorAll('.track-row');
+            rows.forEach(row => {
+                const statusBadge = row.querySelector('.status-badge');
+                const status = statusBadge.textContent.trim();
+                
+                if (type === 'all') {
+                    row.style.display = '';
+                } else if (type === 'active' && status === '活跃') {
+                    row.style.display = '';
+                } else if (type === 'rest' && (status === '休息' || status === '睡眠')) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // 同步功能
+        function syncNow() {
+            const button = document.getElementById('syncButton');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 同步中...';
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-sync-alt"></i> 立即同步';
+                showNotification('✅ 数据同步完成');
+            }, 2000);
+        }
+
+        // 导航功能
+        function goBack() {
+            window.history.back();
+        }
+
+        function goHome() {
+            showNotification('🏠 返回首页');
+        }
+
+        function showHistory() {
+            showNotification('📊 查看历史');
+        }
+
+        function showMap() {
+            showNotification('🗺️ 查看地图');
+        }
+
+        function showProfile() {
+            showNotification('👤 个人资料');
+        }
+
+        // 通知功能
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+
+        // 动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
